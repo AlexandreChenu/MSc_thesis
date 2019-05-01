@@ -68,8 +68,6 @@
 #include <cmath>
 #include <algorithm>
 
-// #define BOOST_TEST_DYN_LINK
-// #define BOOST_TEST_MODULE nn_mlp
 
 using namespace sferes;
 using namespace sferes::gen::dnn;
@@ -221,7 +219,8 @@ int main(int argc, char **argv)
     typedef phen::Parameters<gen::EvoFloat<1, Params>, fit_t, Params> bias_t;
     typedef PfWSum<weight_t> pf_t;
     typedef AfSigmoidBias<bias_t> af_t;
-    typedef sferes::gen::Dnn<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; //May be changed by DnnFF in order to use only feed-forward neural networks
+    typedef sferes::gen::Dnn<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
+                                                                                       // TODO : change by hyper NN in order to test hyper NEAT 
     typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
 
     //start with a fit dummy for debugging
@@ -233,25 +232,25 @@ int main(int argc, char **argv)
     // typedef phen::Dnn<gen_t, fit::FitDummy<>, Params> phen_t;
 
 
-    //typedef qd::selector::Uniform<phen_t, Params> select_t; 
+    //typedef qd::selector::Uniform<phen_t, Params> select_t; //TODO : test other selector
 
     typedef qd::selector::getFitness ValueSelect_t;
     typedef qd::selector::Tournament<phen_t, ValueSelect_t, Params> select_t; 
 
-    typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; //basé sur les vecteurs
-    typedef qd::container::Archive<phen_t, storage_t, Params> container_t; //basé sur les au
+    typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; 
+    typedef qd::container::Archive<phen_t, storage_t, Params> container_t; 
 
-    //typedef eval::Eval<Params> eval_t; //evaluation séquentiel pour pouvoir l'observer en simulation 
-    typedef eval::Parallel<Params> eval_t; //de quelle manière les solutions sont évaluées (en séquentiel intéressant en phase de débug)
+    //typedef eval::Eval<Params> eval_t; //(useful for debbuging)
+    typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
  
-    typedef boost::fusion::vector< //ok
-        stat::BestFit<phen_t, Params>, //best_fit.data
-        //stat::QdContainer<phen_t, Params>, //archive 
-        stat::QdProgress<phen_t, Params> // checker fichier stat pour tout retrouver (cout)
+    typedef boost::fusion::vector< 
+        stat::BestFit<phen_t, Params>, 
+        //stat::QdContainer<phen_t, Params>, 
+        stat::QdProgress<phen_t, Params> 
         >
         stat_t; 
 
-    typedef modif::Dummy<> modifier_t; //l'objet est apppelé à la fin de chaque génération et pourrait faire des trucs 
+    typedef modif::Dummy<> modifier_t; //place holder
     
     typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t; 
     //typedef qd::MapElites<phen_t, eval_t, stat_t, modifier_t, Params> qd_t;
