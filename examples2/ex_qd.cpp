@@ -70,7 +70,7 @@ struct Params {
         // number of initial random points
         SFERES_CONST size_t init_size = 200; // nombre d'individus générés aléatoirement 
         SFERES_CONST size_t size = 200; // size of a batch
-        SFERES_CONST size_t nb_gen = 5001; // nbr de gen pour laquelle l'algo on va tourner 
+        SFERES_CONST size_t nb_gen = 5001; // nbr de gen pour laquelle l'algo va tourner 
         SFERES_CONST size_t dump_period = 500; 
     };
     struct parameters {
@@ -87,9 +87,9 @@ struct Params {
     };
     struct qd {
 
-        SFERES_CONST size_t dim = 2;
-        SFERES_CONST size_t behav_dim = 2; //taille du behavior descriptor
-        SFERES_ARRAY(size_t, grid_shape, 100, 100);
+        SFERES_CONST size_t dim = 3;
+        SFERES_CONST size_t behav_dim = 3; //taille du behavior descriptor
+        SFERES_ARRAY(size_t, grid_shape, 100, 100, 100);
     };
 };
 
@@ -112,7 +112,7 @@ FIT_QD(Robot_arm){
 
         Eigen::Vector3d pos = forward_model(angle);
         
-        std::vector<double> data = {pos[0]/2 + 0.5, pos[1]/2 + 0.5};
+        std::vector<double> data = {pos[0]/2 + 0.5, pos[1]/2 + 0.5, pos[2]};
         this->set_desc(data); //le descriptor est la position finale 
       }
 
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
     //typedef qd::container::Grid<phen_t, Params> container_t;
 
 
-    
+    //typedef eval::Eval<Params> eval_t; //evaluation séquentiel pour pouvoir l'observer en simulation 
     typedef eval::Parallel<Params> eval_t; //de quelle manière les solutions sont évaluées (en séquentiel intéressant en phase de débug)
  
     typedef boost::fusion::vector< //ok
@@ -171,12 +171,12 @@ int main(int argc, char **argv)
         stat::QdProgress<phen_t, Params> // checker fichier stat pour tout retrouver (cout)
         >
         stat_t; 
-    typedef modif::Dummy<> modifier_t; //l'objet est apppelé à la fin de chaque génération et pourrait faire des trucs sur les 
+    typedef modif::Dummy<> modifier_t; //l'objet est apppelé à la fin de chaque génération et pourrait faire des trucs 
     
-    typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t; //ok
+    //typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t; //ok
 
 
-    //typedef qd::MapElites<phen_t, eval_t, stat_t, modifier_t, Params> qd_t;
+    typedef qd::MapElites<phen_t, eval_t, stat_t, modifier_t, Params> qd_t;
     qd_t qd;
     //run_ea(argc, argv, qd);
     qd.run();

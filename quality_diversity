@@ -109,7 +109,9 @@ namespace sferes {
             // Main Iteration of the QD algorithm
             void epoch()
             {
+            std::cout << "début d'epoch" << std::endl;
 	        _parents.resize(Params::pop::size);
+
 
                 // Selection of the parents (will fill the _parents vector)
                 _selector(_parents, *this); // not a nice API

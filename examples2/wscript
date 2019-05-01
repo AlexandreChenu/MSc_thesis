@@ -15,6 +15,15 @@ def build(bld):
     bld.program(features = 'cxx',
                 source = 'ex_qd.cpp',
                 includes = '. ../../',
-                uselib = 'TBB BOOST EIGEN PTHREAD KDTREE MPI',
+                uselib = 'TBB BOOST EIGEN PTHREAD MPI',
                 use = 'sferes2',
                 target = 'ex_qd')
+    #test_nn
+    bld.program(features = 'cxx',
+                source = 'test_nn.cpp',
+                includes = '. ../../',
+                uselib = 'TBB BOOST EIGEN PTHREAD MPI',
+                use = 'sferes2',
+                target = 'test_nn')
+
+
