@@ -62,8 +62,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include <modules/nn2/mlp.hpp>
-#include <modules/nn2/gen_dnn.hpp>
+  #include <modules/nn2/gen_dnn.hpp>
 #include <modules/nn2/phen_dnn.hpp>
+
+#include <modules/nn2/gen_dnn_ff.hpp>
 
 #include <cmath>
 #include <algorithm>
@@ -91,9 +93,9 @@ struct Params {
   };
 
   struct dnn {
-    SFERES_CONST size_t nb_inputs = 2;
-    SFERES_CONST size_t nb_outputs  = 3;
-    SFERES_CONST size_t min_nb_neurons  = 4;
+    SFERES_CONST size_t nb_inputs = 2; //position of the robot gripper
+    SFERES_CONST size_t nb_outputs  = 3; //angles of each arm
+    SFERES_CONST size_t min_nb_neurons  = 4; 
     SFERES_CONST size_t max_nb_neurons  = 10;
     SFERES_CONST size_t min_nb_conns  = 20;
     SFERES_CONST size_t max_nb_conns  = 100;
@@ -107,7 +109,8 @@ struct Params {
     SFERES_CONST float m_rate_del_neuron  = 1.0f;
 
     SFERES_CONST int io_param_evolving = true;
-    SFERES_CONST init_t init = random_topology;
+    //SFERES_CONST init_t init = random_topology;
+    SFERES_CONST init_t init = ff;
   };
 
     struct nov {
@@ -122,8 +125,8 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 20; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 20; // size of a batch
-      SFERES_CONST size_t nb_gen = 5001; // nbr de gen pour laquelle l'algo va tourner 
-      SFERES_CONST size_t dump_period = 200; 
+      SFERES_CONST size_t nb_gen = 1001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t dump_period = 100; 
   };
 
   struct qd {
@@ -145,6 +148,8 @@ FIT_QD(nn_mlp){
       //void eval(Indiv & ind, IO & input, IO & target){ //ind : altered phenotype
       void eval(Indiv & ind){ //ind : altered phenotype
 
+        std::cout << "EVALUATION" <<std::endl;
+
         ind.nn().init(); //init neural network 
 
         //std::cout << "How many neurons :" <<std::endl;
@@ -154,24 +159,36 @@ FIT_QD(nn_mlp){
         //std::cout << ind.nn().get_nb_connections() << std::endl;
 
         size_t nb_out = 3;
-        Eigen::Vector3d target = {0.77024555206298828, 1.3301527500152588, 1.5427114963531494}; //MLP's outputs
+        Eigen::Vector3d target = {0.77024555206298828, 1.3301527500152588, 1.5427114963531494}; //MLP's target
 
         Eigen::Vector3d pos = forward_model(target); //compute forward model to obtain gripper's position
 
         std::vector<float> in(2); //float or double?? 
 
-        in = {pos[0]*0.5 + 0.5, pos[1]*0.5 + 0.5}; //rescale position
+        //in = {pos[0]*0.5 + 0.5, pos[1]*0.5 + 0.5}; //rescale position
+        in = {pos[0], pos[1]};
+
 
         ind.nn().step(in); //process a step with values contained in in
 
         Eigen::Vector3d angles;
 
-        angles[0] = ind.nn().get_outf(0);
-        angles[1] = ind.nn().get_outf(1);
-        angles[2] = ind.nn().get_outf(2);
+        angles[0] = 2*M_PI*(ind.nn().get_outf(0) - 0.5);
+        angles[1] = 2*M_PI*(ind.nn().get_outf(1) - 0.5);
+        angles[2] = 2*M_PI*(ind.nn().get_outf(2) - 0.5);
+
+        // std::cout << "Angles :" <<std::endl;
+        // std::cout << angles[0] << std::endl;
+        // std::cout << angles[1] << std::endl;
+        // std::cout << angles[2] << std::endl;
 
 
-        this->_value = - sqrt(square(target.array() - angles.array()).sum()); //compute -MSE as we intend to maximize a function
+        double error  = - sqrt(square(target.array() - angles.array()).sum());
+
+        // std::cout << "Error :" <<std::endl;
+        // std::cout << error << std::endl;
+
+        this->_value = error; //compute -MSE as we intend to maximize a function
 
         std::vector<double> data = {angles[0], angles[1], angles[2]};
 
@@ -203,6 +220,7 @@ FIT_QD(nn_mlp){
 
   }
 
+
 };
 
 
@@ -219,7 +237,7 @@ int main(int argc, char **argv)
     typedef phen::Parameters<gen::EvoFloat<1, Params>, fit_t, Params> bias_t;
     typedef PfWSum<weight_t> pf_t;
     typedef AfSigmoidBias<bias_t> af_t;
-    typedef sferes::gen::Dnn<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
+    typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
                                                                                        // TODO : change by hyper NN in order to test hyper NEAT 
     typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
 
