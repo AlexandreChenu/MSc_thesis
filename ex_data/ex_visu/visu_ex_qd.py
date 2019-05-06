@@ -119,7 +119,7 @@ if __name__ == '__main__':
 	L_angles2, L_fitness2 = extract_data(filename0_2)
 	positions2, vectors2 = get_positions(L_angles2)
 
-	#plot_arm(positions[0], vectors[0])
+	plot_arm(positions[0], vectors[0])
 
 
 	plt.figure()
@@ -153,9 +153,3 @@ if __name__ == '__main__':
 	sc2 = plt.scatter(pos_x2, pos_y2, c=np.asarray(L_fitness2).reshape(len(L_fitness2),1), marker = 'x')
 
 	plt.colorbar(sc2)
-
-
-
-	plt.show()
-
-

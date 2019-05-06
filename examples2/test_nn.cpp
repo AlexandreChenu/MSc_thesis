@@ -77,7 +77,7 @@ using namespace sferes::gen::evo_float;
 
 struct Params {
   struct evo_float {
-    SFERES_CONST float mutation_rate = 0.5f;
+    SFERES_CONST float mutation_rate = 0.2f;
     SFERES_CONST float cross_rate = 0.1f;
     SFERES_CONST mutation_t mutation_type = polynomial;
     SFERES_CONST cross_over_t cross_over_type = sbx;
@@ -126,7 +126,7 @@ struct Params {
       SFERES_CONST size_t init_size = 20; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 20; // size of a batch
       SFERES_CONST size_t nb_gen = 1001; // nbr de gen pour laquelle l'algo va tourner 
-      SFERES_CONST size_t dump_period = 100; 
+      SFERES_CONST size_t dump_period = 200; 
   };
 
   struct qd {
@@ -148,28 +148,28 @@ FIT_QD(nn_mlp){
       //void eval(Indiv & ind, IO & input, IO & target){ //ind : altered phenotype
       void eval(Indiv & ind){ //ind : altered phenotype
 
-        std::cout << "EVALUATION" <<std::endl;
+        //std::cout << "EVALUATION" <<std::endl;
 
         ind.nn().init(); //init neural network 
 
-        //std::cout << "How many neurons :" <<std::endl;
-        //std::cout << ind.nn().get_nb_neurons() << std::endl;
-
-        //std::cout << "How many connections :" <<std::endl;
-        //std::cout << ind.nn().get_nb_connections() << std::endl;
-
         size_t nb_out = 3;
-        Eigen::Vector3d target = {0.77024555206298828, 1.3301527500152588, 1.5427114963531494}; //MLP's target
+        //Eigen::Vector3d target = {0.77024555206298828, 1.3301527500152588, 1.5427114963531494}; //MLP's target
+        Eigen::Vector3d target = {-0.43605732917785645, -0.40392923355102539, -0.29289793968200684};
 
-        Eigen::Vector3d pos = forward_model(target); //compute forward model to obtain gripper's position
+        //Eigen::Vector3d pos = forward_model(target); //compute forward model to obtain gripper's position
 
         std::vector<float> in(2); //float or double?? 
 
         //in = {pos[0]*0.5 + 0.5, pos[1]*0.5 + 0.5}; //rescale position
-        in = {pos[0], pos[1]};
+        //in = {pos[0], pos[1]};
+        in = {0.83299100918905145, 0.15455961613055846};
 
+        //TODO : change it for an iteration of steps 
 
-        ind.nn().step(in); //process a step with values contained in in
+        for (int j = 0; j < ind.gen().get_depth() + 1; ++j)
+                ind.nn().step(in);
+
+        //ind.nn().step(in); //process a step with values contained in in 
 
         Eigen::Vector3d angles;
 
@@ -177,16 +177,9 @@ FIT_QD(nn_mlp){
         angles[1] = 2*M_PI*(ind.nn().get_outf(1) - 0.5);
         angles[2] = 2*M_PI*(ind.nn().get_outf(2) - 0.5);
 
-        // std::cout << "Angles :" <<std::endl;
-        // std::cout << angles[0] << std::endl;
-        // std::cout << angles[1] << std::endl;
-        // std::cout << angles[2] << std::endl;
 
+        double error  = - sqrt(square(target.array() - angles.array()).sum()); //-MSE
 
-        double error  = - sqrt(square(target.array() - angles.array()).sum());
-
-        // std::cout << "Error :" <<std::endl;
-        // std::cout << error << std::endl;
 
         this->_value = error; //compute -MSE as we intend to maximize a function
 
@@ -233,8 +226,8 @@ int main(int argc, char **argv)
 
     typedef nn_mlp<Params> fit_t; //TODO : Fitness to test
 
-    typedef phen::Parameters<gen::EvoFloat<1, Params>, fit_t, Params> weight_t;
-    typedef phen::Parameters<gen::EvoFloat<1, Params>, fit_t, Params> bias_t;
+    typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;
+    typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
     typedef PfWSum<weight_t> pf_t;
     typedef AfSigmoidBias<bias_t> af_t;
     typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
@@ -278,6 +271,16 @@ int main(int argc, char **argv)
 
     qd.run();
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
+
+    qd.stat<0>().best()->nn().init(); //init network for best fit
+
+    std::vector<float> in(2); 
+    in = {0.83299100918905145, 0.15455961613055846};
+
+    for (int j = 0; j < qd.stat<0>().best()->gen().get_depth() + 1; ++j)
+                qd.stat<0>().best()->nn().step(in);
+
+    std::cout<<"best angles : " << 2*M_PI*(qd.stat<0>().best()->nn().get_outf(0) - 0.5) << " , " << 2*M_PI*(qd.stat<0>().best()->nn().get_outf(1) - 0.5) << " , " << 2*M_PI*(qd.stat<0>().best()->nn().get_outf(2) - 0.5) << std::endl;
     //std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
     return 0;
     
