@@ -3,7 +3,10 @@ import os.path
 import matplotlib.pyplot as plt 
 import numpy as np
 
-filename = "/Users/mobby/git/ex_data/2019-05-03_15_14_25_532/bestfit.dat"
+
+filename0 = "/Users/mobby/git/ex_data/2019-05-03_14_46_56_470/bestfit.dat"
+filename1 = "/Users/mobby/git/ex_data/2019-05-03_14_51_59_489/bestfit.dat"
+filename2 = "/Users/mobby/git/ex_data/2019-05-03_15_14_25_532/bestfit.dat"
 
 def extract_data(filename):
 
@@ -35,9 +38,17 @@ def extract_data(filename):
 
 if "__main__" == __name__:
 
-	X, Y = extract_data(filename)
+	X0, Y0 = extract_data(filename0)
+	X1, Y1 = extract_data(filename1)
+	X2, Y2 = extract_data(filename2)
 
-	plt.plot(X,Y)
+
+	plt.plot(X0,Y0,c='r',label='500 iterations')
+	plt.plot(X1,Y1,c='b',label='1000 iterations')
+	plt.plot(X2,Y2,c='y',label='2000 iterations and higher mutation rate')
+
+	plt.legend()
+	
 	plt.show()
 
 
