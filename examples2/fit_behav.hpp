@@ -62,13 +62,17 @@
 #include <boost/test/unit_test.hpp>
 
 #include <modules/nn2/mlp.hpp>
-  #include <modules/nn2/gen_dnn.hpp>
+#include <modules/nn2/gen_dnn.hpp>
 #include <modules/nn2/phen_dnn.hpp>
 
 #include <modules/nn2/gen_dnn_ff.hpp>
 
+//#include <exp/examples2/phen_arm.hpp>
+
 #include <cmath>
 #include <algorithm>
+
+#include <cstdlib>
 
 
 using namespace sferes;
@@ -77,7 +81,7 @@ using namespace sferes::gen::evo_float;
 
 struct Params {
   struct evo_float {
-    SFERES_CONST float mutation_rate = 0.2f;
+    SFERES_CONST float mutation_rate = 0.5f;
     SFERES_CONST float cross_rate = 0.1f;
     SFERES_CONST mutation_t mutation_type = polynomial;
     SFERES_CONST cross_over_t cross_over_type = sbx;
@@ -93,10 +97,10 @@ struct Params {
   };
 
   struct dnn {
-    SFERES_CONST size_t nb_inputs = 2; //position of the robot gripper
-    SFERES_CONST size_t nb_outputs  = 3; //angles of each arm
+    SFERES_CONST size_t nb_inputs = 2; // right/left and up/down sensors
+    SFERES_CONST size_t nb_outputs  = 3; //usage of each joint
     SFERES_CONST size_t min_nb_neurons  = 4; 
-    SFERES_CONST size_t max_nb_neurons  = 10;
+    SFERES_CONST size_t max_nb_neurons  = 15;
     SFERES_CONST size_t min_nb_conns  = 20;
     SFERES_CONST size_t max_nb_conns  = 100;
     SFERES_CONST float  max_weight  = 2.0f;
@@ -125,8 +129,8 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 20; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 20; // size of a batch
-      SFERES_CONST size_t nb_gen = 1001; // nbr de gen pour laquelle l'algo va tourner 
-      SFERES_CONST size_t dump_period = 200; 
+      SFERES_CONST size_t nb_gen = 501; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t dump_period = 100; 
   };
 
   struct qd {
@@ -148,46 +152,99 @@ FIT_QD(nn_mlp){
       //void eval(Indiv & ind, IO & input, IO & target){ //ind : altered phenotype
       void eval(Indiv & ind){ //ind : altered phenotype
 
-        //std::cout << "EVALUATION" <<std::endl;
+        // target = ind.get_target();
+        // target[2] = 0; //z = 0, we are working in a 2D space
+        // angles = ind.get_robot_angles();
+        // motor_usage = ind.get_motor_usage();
 
-        ind.nn().init(); //init neural network 
+        //std::cout << "EVALUATION" << std::endl;
 
-        size_t nb_out = 3;
-        //Eigen::Vector3d target = {0.77024555206298828, 1.3301527500152588, 1.5427114963531494}; //MLP's target
-        Eigen::Vector3d target = {-0.43605732917785645, -0.40392923355102539, -0.29289793968200684};
+        std::vector<double> motor_usage(3);
+        Eigen::Vector3d robot_angles;
+        Eigen::Vector3d target;
+        double dist;
 
-        //Eigen::Vector3d pos = forward_model(target); //compute forward model to obtain gripper's position
+        //std::cout << "INIT" << std::endl;
 
-        std::vector<float> in(2); //float or double?? 
+        robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
 
-        //in = {pos[0]*0.5 + 0.5, pos[1]*0.5 + 0.5}; //rescale position
-        //in = {pos[0], pos[1]};
-        in = {0.83299100918905145, 0.15455961613055846};
+        //init tables
+        for (int j = 0; j < 3 ; ++j){ 
+                    motor_usage[j] = 0; //starting usage is null  
+                    //robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
+                    target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
+                  }
 
-        //TODO : change it for an iteration of steps 
-
-        for (int j = 0; j < ind.gen().get_depth() + 1; ++j)
-                ind.nn().step(in);
-
-        //ind.nn().step(in); //process a step with values contained in in 
-
-        Eigen::Vector3d angles;
-
-        angles[0] = 2*M_PI*(ind.nn().get_outf(0) - 0.5);
-        angles[1] = 2*M_PI*(ind.nn().get_outf(1) - 0.5);
-        angles[2] = 2*M_PI*(ind.nn().get_outf(2) - 0.5);
-
-
-        double error  = - sqrt(square(target.array() - angles.array()).sum()); //-MSE
-
-
-        this->_value = error; //compute -MSE as we intend to maximize a function
-
-        std::vector<double> data = {angles[0], angles[1], angles[2]};
-
-        this->set_desc(data); //Which behavior descriptor? The three motors angles 
+        if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable
+          if (target[0] > 0){
+            target[0] -= 1;
+          }
+          else{
+            target[0] += 1;
+          }
+          if (target[1] > 0){
+            target[1] -= 1;
+          }
+          else{
+            target[1] += 1; 
+        }
       }
-    
+
+
+        //std::cout << "LOOP" << std::endl;
+
+        for (int t=0; t< _t_max/_delta_t; ++t){ //iterate through time
+
+          //TODO : what input do we use for our Neural network? 
+          std::vector<float> inputs(2);
+
+          Eigen::Vector3d prev_pos; //compute previous position
+
+          prev_pos = forward_model(robot_angles);
+
+          //std::cout << "target x: " << target[0] << "position y: " << target[1] << std::endl;
+          //std::cout << "position x: " << prev_pos[0] << "position y: " << prev_pos[1] << std::endl;
+
+          inputs[0] = target[0] - prev_pos[0]; //get side distance to target
+          inputs[1] = target[1] - prev_pos[1]; //get front distance to target
+
+          //DATA GO THROUGH NN
+          ind.nn().init(); //init neural network 
+          for (int j = 0; j < ind.gen().get_depth() + 1; ++j)
+            ind.nn().step(inputs);
+
+          Eigen::Vector3d output;
+          for (int indx = 0; indx < 3; ++indx){
+            output[indx] = 2*(ind.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
+            robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
+            motor_usage[indx] += abs(output[indx]); //Compute motor usage
+          }
+
+          //Eigen::Vector3d new_pos;
+          prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
+
+          target[2] = 0; //get rid of z coordinate
+          prev_pos[2] = 0;
+
+          dist = - sqrt(square(target.array() - prev_pos.array()).sum());
+
+          if (abs(dist) < 0.1) //we converged before the end of the time
+            break;
+
+          // prev_pos = new_pos;
+        }
+
+        // ind.set_motor_usage(motor_usage); //set new values 
+        // ind.set_robot_angles(angles);
+        //ind.set_target(target); //if target is moving 
+
+        this->_value = dist; //compute how close we get to the solution
+
+        std::vector<double> desc(3);
+        desc = {motor_usage[0], motor_usage[1], motor_usage[2]};
+
+        this->set_desc(desc); //Which behavior descriptor? The three motors angles 
+      }
 
   Eigen::Vector3d forward_model(Eigen::VectorXd a){
     
@@ -213,75 +270,8 @@ FIT_QD(nn_mlp){
 
   }
 
-
+private:
+  double _vmax = 1;
+  double _delta_t = 0.1;
+  double _t_max = 4; //TMax guidé poto
 };
-
-
-int main(int argc, char **argv) 
-{
-    using namespace sferes;
-    using namespace nn;
-
-    std::cout << "STARTING INIT" <<std::endl;
-
-    typedef nn_mlp<Params> fit_t; //TODO : Fitness to test
-
-    typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;
-    typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
-    typedef PfWSum<weight_t> pf_t;
-    typedef AfSigmoidBias<bias_t> af_t;
-    typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
-                                                                                       // TODO : change by hyper NN in order to test hyper NEAT 
-    typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
-
-    //start with a fit dummy for debugging
-    // typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;
-    // typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
-    // typedef PfWSum<weight_t> pf_t;
-    // typedef AfTanh<bias_t> af_t;
-    // typedef sferes::gen::Dnn<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; //does this exist in sferes??
-    // typedef phen::Dnn<gen_t, fit::FitDummy<>, Params> phen_t;
-
-
-    //typedef qd::selector::Uniform<phen_t, Params> select_t; //TODO : test other selector
-
-    typedef qd::selector::getFitness ValueSelect_t;
-    typedef qd::selector::Tournament<phen_t, ValueSelect_t, Params> select_t; 
-
-    typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; 
-    typedef qd::container::Archive<phen_t, storage_t, Params> container_t; 
-
-    //typedef eval::Eval<Params> eval_t; //(useful for debbuging)
-    typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
- 
-    typedef boost::fusion::vector< 
-        stat::BestFit<phen_t, Params>, 
-        stat::QdContainer<phen_t, Params>, 
-        stat::QdProgress<phen_t, Params> 
-        >
-        stat_t; 
-
-    typedef modif::Dummy<> modifier_t; //place holder
-    
-    typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t; 
-    //typedef qd::MapElites<phen_t, eval_t, stat_t, modifier_t, Params> qd_t;
-
-    qd_t qd;
-    //run_ea(argc, argv, qd); 
-
-    qd.run();
-    std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
-
-    qd.stat<0>().best()->nn().init(); //init network for best fit
-
-    std::vector<float> in(2); 
-    in = {0.83299100918905145, 0.15455961613055846};
-
-    for (int j = 0; j < qd.stat<0>().best()->gen().get_depth() + 1; ++j)
-                qd.stat<0>().best()->nn().step(in);
-
-    std::cout<<"best angles : " << 2*M_PI*(qd.stat<0>().best()->nn().get_outf(0) - 0.5) << " , " << 2*M_PI*(qd.stat<0>().best()->nn().get_outf(1) - 0.5) << " , " << 2*M_PI*(qd.stat<0>().best()->nn().get_outf(2) - 0.5) << std::endl;
-    //std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
-    return 0;
-    
-}

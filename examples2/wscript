@@ -33,4 +33,20 @@ def build(bld):
                 use = 'sferes2',
                 target = 'test_xor')
 
+    bld.program(features = 'cxx',
+                source = 'ex_behav_nn.cpp',
+                includes = '. ../../',
+                uselib = 'TBB BOOST EIGEN PTHREAD MPI',
+                use = 'sferes2',
+                target = 'ex_behav_nn')
+
+    bld.program(features = 'cxx',
+                source = 'test_model.cpp',
+                includes = '. ../../',
+                uselib = 'TBB BOOST EIGEN PTHREAD MPI',
+                use = 'sferes2', 
+                target = 'test_model')
+
+
+
 

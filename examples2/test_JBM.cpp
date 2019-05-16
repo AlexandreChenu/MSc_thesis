@@ -52,6 +52,44 @@
 #include <modules/nn2/gen_dnn_ff.hpp>
 #include <modules/nn2/phen_dnn.hpp>
 
+#include <iostream>
+#include <Eigen/Core>
+
+#include <sferes/eval/parallel.hpp>
+#include <sferes/gen/evo_float.hpp>
+#include <sferes/modif/dummy.hpp>
+#include <sferes/phen/parameters.hpp>
+#include <sferes/run.hpp>
+#include <sferes/stat/best_fit.hpp>
+#include <sferes/stat/qd_container.hpp>
+#include <sferes/stat/qd_selection.hpp>
+#include <sferes/stat/qd_progress.hpp>
+
+
+#include <sferes/fit/fit_qd.hpp>
+#include <sferes/qd/container/archive.hpp>
+#include <sferes/qd/container/kdtree_storage.hpp>
+#include <sferes/qd/container/sort_based_storage.hpp>
+#include <sferes/qd/container/grid.hpp>
+#include <sferes/qd/quality_diversity.hpp>
+#include <sferes/qd/selector/tournament.hpp>
+#include <sferes/qd/selector/uniform.hpp>
+#include <sferes/qd/selector/population_based.hpp>
+#include <sferes/qd/selector/value_selector.hpp>
+
+
+
+#include <boost/test/unit_test.hpp>
+
+#include <modules/nn2/mlp.hpp>
+  #include <modules/nn2/gen_dnn.hpp>
+#include <modules/nn2/phen_dnn.hpp>
+
+#include <modules/nn2/gen_dnn_ff.hpp>
+
+#include <cmath>
+#include <algorithm>
+
 using namespace sferes;
 using namespace sferes::gen::dnn;
 using namespace sferes::gen::evo_float;
@@ -153,7 +191,7 @@ public:
                 indiv.nn().step(inputs[i]);
             const std::vector<float> &outf = indiv.nn().get_outf();
             _behavior[i] = outf[0];
-            fit -= std::powf(outf[0] - outputs[i], 2.0);
+            fit -= std::pow(outf[0] - outputs[i], 2.0);
         }
         this->_objs[0] = fit;
         this->_value = fit;
@@ -165,7 +203,7 @@ public:
         assert(_behavior.size() == 4);
         double d = 0;
         for (size_t i = 0; i < _behavior.size(); ++i)
-            d += std::powf(_behavior[i] - ind.fit()._behavior[i], 2.0);
+            d += std::pow(_behavior[i] - ind.fit()._behavior[i], 2.0);
         return d;
     }
 private:
@@ -203,14 +241,33 @@ int main(int argc, char** argv)
     // parallel evaluator
     typedef eval::Parallel<Params> eval_t;
     // list of statistics
-    typedef boost::fusion::vector<stat::BestFit<phen_t, Params>, stat::ParetoFront<phen_t, Params>> stat_t;
+    // typedef boost::fusion::vector<stat::BestFit<phen_t, Params> > stat_t;
+    // //stat::ParetoFront<phen_t, Params>
+
+    typedef boost::fusion::vector< stat::BestFit<phen_t, Params>, 
+        //stat::QdContainer<phen_t, Params>, 
+        stat::QdProgress<phen_t, Params> 
+        > stat_t; 
+    
     // we use a behavioral diversity modifier
     typedef modif::Diversity<phen_t> modifier_t;
-    typedef ea::Nsga2<phen_t, eval_t, stat_t, modifier_t, Params> ea_t;
-    ea_t ea;
 
-    // RUN THE ALGORITHM
-    run_ea(argc, argv, ea);
+    typedef qd::selector::Uniform<phen_t, Params> select_t; //TODO : test other selector
+
+    typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; 
+    typedef qd::container::Archive<phen_t, storage_t, Params> container_t;
+
+    //typedef ea::Nsga2<phen_t, eval_t, stat_t, modifier_t, Params> ea_t;
+    typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t;
+
+    qd_t qd;
+
+    qd.run();
+
+    std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
+
+    // // RUN THE ALGORITHM
+    // run_ea(argc, argv, ea);
 
     return 0;
 }
