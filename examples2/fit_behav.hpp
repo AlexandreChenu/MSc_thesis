@@ -91,16 +91,16 @@ struct Params {
 
   struct parameters {
     // maximum value of parameters
-    SFERES_CONST float min = -1.0f;
+    SFERES_CONST float min = -2.0f;
     // minimum value
-    SFERES_CONST float max = 1.0f;
+    SFERES_CONST float max = 2.0f;
   };
 
   struct dnn {
     SFERES_CONST size_t nb_inputs = 2; // right/left and up/down sensors
     SFERES_CONST size_t nb_outputs  = 3; //usage of each joint
-    SFERES_CONST size_t min_nb_neurons  = 4; 
-    SFERES_CONST size_t max_nb_neurons  = 15;
+    SFERES_CONST size_t min_nb_neurons  = 10; 
+    SFERES_CONST size_t max_nb_neurons  = 20;
     SFERES_CONST size_t min_nb_conns  = 20;
     SFERES_CONST size_t max_nb_conns  = 100;
     SFERES_CONST float  max_weight  = 2.0f;
@@ -127,10 +127,10 @@ struct Params {
   // TODO: move to a qd::
   struct pop {
       // number of initial random points
-      SFERES_CONST size_t init_size = 20; // nombre d'individus générés aléatoirement 
-      SFERES_CONST size_t size = 20; // size of a batch
-      SFERES_CONST size_t nb_gen = 501; // nbr de gen pour laquelle l'algo va tourner 
-      SFERES_CONST size_t dump_period = 100; 
+      SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
+      SFERES_CONST size_t size = 100; // size of a batch
+      SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t dump_period = 500; 
   };
 
   struct qd {
@@ -152,6 +152,7 @@ FIT_QD(nn_mlp){
       //void eval(Indiv & ind, IO & input, IO & target){ //ind : altered phenotype
       void eval(Indiv & ind){ //ind : altered phenotype
 
+      //std::cout << "ca evalue en bal?" <<std::endl;
         // target = ind.get_target();
         // target[2] = 0; //z = 0, we are working in a 2D space
         // angles = ind.get_robot_angles();
@@ -162,20 +163,20 @@ FIT_QD(nn_mlp){
         std::vector<double> motor_usage(3);
         Eigen::Vector3d robot_angles;
         Eigen::Vector3d target;
-        double dist;
+        double dist = 0;
 
         //std::cout << "INIT" << std::endl;
 
-        robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
+        //robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
 
         //init tables
         for (int j = 0; j < 3 ; ++j){ 
                     motor_usage[j] = 0; //starting usage is null  
-                    //robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
+                    robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
                     target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
                   }
 
-        if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable
+        if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable (inside a circle of radius 1)
           if (target[0] > 0){
             target[0] -= 1;
           }
@@ -205,8 +206,8 @@ FIT_QD(nn_mlp){
           //std::cout << "target x: " << target[0] << "position y: " << target[1] << std::endl;
           //std::cout << "position x: " << prev_pos[0] << "position y: " << prev_pos[1] << std::endl;
 
-          inputs[0] = target[0] - prev_pos[0]; //get side distance to target
-          inputs[1] = target[1] - prev_pos[1]; //get front distance to target
+          inputs[0] = target[0] - prev_pos[0]; //get side distance to target (-1 < input < 1)
+          inputs[1] = target[1] - prev_pos[1]; //get front distance to target (-1 < input < 1)
 
           //DATA GO THROUGH NN
           ind.nn().init(); //init neural network 
@@ -226,10 +227,7 @@ FIT_QD(nn_mlp){
           target[2] = 0; //get rid of z coordinate
           prev_pos[2] = 0;
 
-          dist = - sqrt(square(target.array() - prev_pos.array()).sum());
-
-          if (abs(dist) < 0.1) //we converged before the end of the time
-            break;
+          dist -= sqrt(square(target.array() - prev_pos.array()).sum());
 
           // prev_pos = new_pos;
         }
@@ -238,7 +236,7 @@ FIT_QD(nn_mlp){
         // ind.set_robot_angles(angles);
         //ind.set_target(target); //if target is moving 
 
-        this->_value = dist; //compute how close we get to the solution
+        this->_value = dist; //cumulative distance during the experiment
 
         std::vector<double> desc(3);
         desc = {motor_usage[0], motor_usage[1], motor_usage[2]};
@@ -273,5 +271,5 @@ FIT_QD(nn_mlp){
 private:
   double _vmax = 1;
   double _delta_t = 0.1;
-  double _t_max = 4; //TMax guidé poto
+  double _t_max = 10; //TMax guidé poto
 };

@@ -77,6 +77,29 @@
 
 #include "/git/sferes2/exp/examples2/fit_behav.hpp"
 
+Eigen::Vector3d forward_model(Eigen::VectorXd a){
+    
+    Eigen::VectorXd _l_arm=Eigen::VectorXd::Ones(a.size()+1);
+    _l_arm(0)=0;
+    _l_arm = _l_arm/_l_arm.sum();
+
+    Eigen::Matrix4d mat=Eigen::Matrix4d::Identity(4,4);
+
+    for(size_t i=0;i<a.size();i++){
+
+      Eigen::Matrix4d submat;
+      submat<<cos(a(i)), -sin(a(i)), 0, _l_arm(i), sin(a(i)), cos(a(i)), 0 , 0, 0, 0, 1, 0, 0, 0, 0, 1;
+      mat=mat*submat;
+    }
+    
+    Eigen::Matrix4d submat;
+    submat<<1, 0, 0, _l_arm(a.size()), 0, 1, 0 , 0, 0, 0, 1, 0, 0, 0, 0, 1;
+    mat=mat*submat;
+    Eigen::VectorXd v=mat*Eigen::Vector4d(0,0,0,1);
+
+    return v.head(3);
+ }
+
 
 
 int main(int argc, char **argv) 
@@ -148,13 +171,11 @@ int main(int argc, char **argv)
     typedef boost::archive::binary_oarchive oa_t;
     typedef boost::archive::binary_iarchive ia_t;
 
-    phen_t model; 
     
     const std::string filename = "/git/sferes2/exp/tmp/serialize_nn1.bin";
-
+    
     std::string typeuh = typeid(*qd.stat<0>().best()).name();
-
-    //std::cout << "typeuh : " << typeuh << std::endl;
+    std::cout << "typeuh : " << typeuh << std::endl;
 
     {
     std::ofstream ofs(filename, std::ios::binary);
@@ -162,6 +183,170 @@ int main(int argc, char **argv)
     oa << *qd.stat<0>().best();
     //oa qd.stat<0>().best();
     }
+    std::cout << "model written" << std::endl;
+
+    //Test if bestfit also does not learn anything 
+    //init variables
+    double _vmax = 1;
+    double _delta_t = 0.1;
+    double _t_max = 10;
+    Eigen::Vector3d robot_angles;
+    Eigen::Vector3d target;
+    double dist;
+
+    stat::QdContainer<phen_t, Params>::archive_t archive;
+    archive = qd.stat<1>().archive();
+    // std::cout << "archive obtained" << std::endl;
+  
+    for (int loop=0; loop < 100; ++loop){
+
+        phen_t model; 
+        int multi = 1000;
+
+        model = *qd.stat<1>().archive()[multi*loop]; //on considère un modèle en particulier
+        // std::cout << "model obtained" << std::endl;
+
+        std::string typeuh = typeid(model).name();
+        // std::cout << "typeuh : " << typeuh << std::endl;
+
+        qd.stat<1>().archive()[multi*loop]->nn().init();
+        // std::cout << "model initialized" << std::endl;
+
+        for (int j = 0; j < 3 ; ++j){  
+            robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
+            target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
+            }
+
+        if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable
+            if (target[0] > 0){
+                target[0] -= 1;}
+            else{
+                target[0] += 1;}
+          
+            if (target[1] > 0){
+                target[1] -= 1;}
+            else{
+                target[1] += 1;}
+        }
+
+        //open logfile
+        std::ofstream logfile;
+        std::string loglog = "/git/sferes2/exp/tmp/logfile_test" + std::to_string(loop) + ".txt";
+        logfile.open(loglog);
+
+        std::vector<float> inputs(2);
+
+        Eigen::Vector3d prev_pos; //compute previous position
+        prev_pos = forward_model(robot_angles);
+
+        //iterate through time
+        for (int t=0; t< _t_max/_delta_t; ++t){
+
+            inputs[0] = target[0] - prev_pos[0]; //get side distance to target
+            inputs[1] = target[1] - prev_pos[1]; //get front distance to target
+
+            logfile << inputs[0] << "    " << inputs[1] << "    ";
+            // std::cout << "input written" << std::endl;
+            // std::cout << "size of nn : " << model.gen().get_depth() << std::endl;
+            // std::cout << "size of nn 2 : " << qd.stat<1>().archive()[loop]->gen().get_depth() << std::endl;
+
+            //DATA GO THROUGH NN
+            for (int j = 0; j < qd.stat<1>().archive()[multi*loop]->gen().get_depth() + 1; ++j){
+                qd.stat<1>().archive()[multi*loop]->nn().step(inputs);
+                // std::cout << "data went through nn" << std::endl;
+                }
+
+            Eigen::Vector3d output;
+            for (int indx = 0; indx < 3; ++indx){
+                output[indx] = 2*(qd.stat<1>().archive()[multi*loop]->nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
+                robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
+                }
+      
+            // std::cout << "output obtained" << std::endl;
+            logfile << output[0] << "    " << output[1] << "    ";
+            // std::cout << "output written" << std::endl;
+
+            prev_pos = forward_model(robot_angles);
+            logfile << prev_pos[0] << "    " << prev_pos[1] << "    ";
+            logfile << target[0] << "    " << target[1] << "\n";
+
+            }
+
+        logfile.close();
+
+    }
+
+  // return 0;}
+
+
+    //init tables
+    for (int j = 0; j < 3 ; ++j){  
+            robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
+            target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
+            }
+
+    if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable
+          if (target[0] > 0){
+            target[0] -= 1;
+          }
+          else{
+            target[0] += 1;
+          }
+          if (target[1] > 0){
+            target[1] -= 1;
+          }
+          else{
+            target[1] += 1; 
+        }
+      }
+
+
+    // std::cout << "data initialized for test" << std::endl;
+
+    //open logfile
+    std::ofstream logfile;
+    logfile.open("/git/sferes2/exp/tmp/logfile_test.txt");
+
+    //std::cout << "logfile opened" << std::endl;
+
+    std::vector<float> inputs(2);
+
+    Eigen::Vector3d prev_pos; //compute previous position
+    prev_pos = forward_model(robot_angles);
+
+    //iterate through time
+    for (int t=0; t< _t_max/_delta_t; ++t){
+
+      inputs[0] = target[0] - prev_pos[0]; //get side distance to target
+      inputs[1] = target[1] - prev_pos[1]; //get front distance to target
+
+      logfile << inputs[0] << "    " << inputs[1] << "    ";
+      //std::cout << "input written" << std::endl;
+
+      //DATA GO THROUGH NN
+      for (int j = 0; j < qd.stat<0>().best()->gen().get_depth() + 1; ++j)
+        qd.stat<0>().best()->nn().step(inputs);
+      //std::cout << "data went through nn" << std::endl;
+
+      Eigen::Vector3d output;
+      for (int indx = 0; indx < 3; ++indx){
+        output[indx] = 2*(qd.stat<0>().best()->nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
+        robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
+      }
+      //std::cout << "output obtained" << std::endl;
+      logfile << output[0] << "    " << output[1] << "    ";
+      //std::cout << "output written" << std::endl;
+
+      prev_pos = forward_model(robot_angles);
+      logfile << robot_angles[0] << "    " << robot_angles[1] << "    " << robot_angles[2] << "    ";
+      logfile << prev_pos[0] << "    " << prev_pos[1] << "    ";
+      logfile << target[0] << "    " << target[1] << "\n";
+
+    }
+
+    logfile.close();
+
+    std::cout << "it's all good" << std::endl;
     return 0;
 
   }
