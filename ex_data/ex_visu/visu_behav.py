@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
 
 	### PLOT BEST FIT
-	filename = "/Users/mobby/git/ex_data/test_1000it_10_sec2/logfile_test.txt"
+	filename = "/Users/mobby/git/ex_data/logfile_test.txt"
 		
 	L_X, L_Y, target = extract_data(filename)
 

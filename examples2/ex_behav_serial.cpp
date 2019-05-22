@@ -41,9 +41,6 @@
 #include <sferes/phen/parameters.hpp>
 #include <sferes/run.hpp>
 #include <sferes/stat/best_fit.hpp>
-
-#include "/git/sferes2/exp/examples2/best_fit_nn.hpp"
-
 #include <sferes/stat/qd_container.hpp>
 #include <sferes/stat/qd_selection.hpp>
 #include <sferes/stat/qd_progress.hpp>
@@ -82,7 +79,7 @@
 
 #include <cstdlib>
 
-//#include "/git/sferes2/exp/examples2/fit_behav.hpp"
+#include "/git/sferes2/exp/examples2/fit_behav.hpp"
 
 Eigen::Vector3d forward_model(Eigen::VectorXd a){
     
@@ -122,7 +119,7 @@ int main(int argc, char **argv)
     typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
     typedef PfWSum<weight_t> pf_t;
     typedef AfSigmoidBias<bias_t> af_t;
-    typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
+    typedef sferes::gen::Dnn<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
                                                                                        // TODO : change by hyper NN in order to test hyper NEAT 
     typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
 
@@ -147,7 +144,7 @@ int main(int argc, char **argv)
     typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
  
     typedef boost::fusion::vector< 
-        stat::BestFitNN<phen_t, Params>, 
+        stat::BestFit<phen_t, Params>, 
         stat::QdContainer<phen_t, Params>, 
         stat::QdProgress<phen_t, Params> 
         >
@@ -165,60 +162,33 @@ int main(int argc, char **argv)
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
 
+    
+
 
     //save model
-    // std::ofstream ofs("/git/sferes2/exp/tmp/test_nn2.dot");
-    // qd.stat<0>().best()->nn().init(); //init network for best fit
-    // qd.stat<0>().best()->nn().write(ofs);
-
-    // std::cout<<"model written in test_nn2.dot" <<std::endl;
-
+    std::ofstream ofs("/git/sferes2/exp/tmp/test_nn2.dot");
     qd.stat<0>().best()->nn().init(); //init network for best fit
+    qd.stat<0>().best()->nn().save(ofs, 1);
 
-    typedef boost::archive::binary_oarchive oa_t;
-    typedef boost::archive::binary_iarchive ia_t;
+    gen_t model;
 
-    
-    const std::string filename = "/git/sferes2/exp/tmp/serialize_nn1.bin";
-    
-    std::string typeuh = typeid(*qd.stat<0>().best()).name();
-    std::cout << "typeuh : " << typeuh << std::endl;
-    //gen_t model1 = qd.stat<0>().best()->gen(); //toujours pas
-    //phen_t model = *qd.stat<0>().best();
-    //boost::shared_ptr<phen_t> m_ptr = qd.stat<0>().best();
+    std::ifstream ifs("/git/sferes2/exp/tmp/test_nn2.dot");
+    model.load(ifs, 1);
 
-    model.nn().init();
+    model.init();
 
 
-    //save model
-    {
-    std::ofstream ofs(filename, std::ios::binary);
-    oa_t oa(ofs);
-    //oa << model;
-    oa << *qd.stat<0>().best();
-    }
-    std::cout << "model written" << std::endl;
-    
-    //load model
-    phen_t model_load;
-    {
-    std::ifstream ifs(filename , std::ios::binary);
-    ia_t ia(ifs);
-    ia >> model_load;
-    }
-
-    //develop loaded model
-    model_load.develop();
-
+    //Test if bestfit also does not learn anything 
     //init variables
     double _vmax = 1;
     double _delta_t = 0.1;
-    double _t_max = 5;
+    double _t_max = 3;
     Eigen::Vector3d robot_angles;
     Eigen::Vector3d target;
     double dist;
 
-    //initialize data
+
+    //init tables
     for (int j = 0; j < 3 ; ++j){  
             robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
             target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
@@ -239,14 +209,19 @@ int main(int argc, char **argv)
         }
       }
 
+    // std::cout << "data initialized for test" << std::endl;
+
     //open logfile
     std::ofstream logfile;
     logfile.open("/git/sferes2/exp/tmp/logfile_test.txt");
+
+    //std::cout << "logfile opened" << std::endl;
 
     std::vector<float> inputs(2);
 
     Eigen::Vector3d prev_pos; //compute previous position
     prev_pos = forward_model(robot_angles);
+
 
     for (int t=0; t< _t_max/_delta_t; ++t){
 
@@ -258,19 +233,19 @@ int main(int argc, char **argv)
       //std::cout << "input written" << std::endl;
 
       //DATA GO THROUGH NN
-      for (int j = 0; j < qd.stat<0>().best()->gen().get_depth() + 1; ++j){
+      for (int j = 0; j < 100 + 1; ++j){
+        model.step(inputs);
         qd.stat<0>().best()->nn().step(inputs);
-        model_load.nn().step(inputs);
         }
         //std::cout << j << std::endl;}
       //std::cout << "data went through nn" << std::endl;
 
       Eigen::Vector3d output;
       for (int indx = 0; indx < 3; ++indx){
-        output[indx] = 2*(qd.stat<0>().best()->nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
+        output[indx] = 2*(model.get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
         robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
       }
-      std::cout << "output obtained: " << model_load.nn().get_outf(0) << "   " << model_load.nn().get_outf(1) << "    " << model_load.nn().get_outf(2) << std::endl;
+      std::cout << "output obtained: " << output[0] << "   " << output[1] << "    " << output[2] << std::endl;
       std::cout << "output we should have: " << qd.stat<0>().best()->nn().get_outf(0) << "   " << qd.stat<0>().best()->nn().get_outf(1) << "   " << qd.stat<0>().best()->nn().get_outf(2) << std::endl;
       logfile << output[0] << "    " << output[1] << "    ";
       //std::cout << "output written" << std::endl;
@@ -283,7 +258,7 @@ int main(int argc, char **argv)
 
     logfile.close();
 
-    std::cout << "it's all good" << std::endl;
+    //std::cout << "it's all good" << std::endl;
     return 0;
 
   }

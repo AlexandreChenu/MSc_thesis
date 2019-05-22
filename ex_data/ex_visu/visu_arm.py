@@ -102,7 +102,21 @@ def plot_arm(pos, vecs, axe):
 
 	#plt.show()
 
-	return
+def init_figure(xmin,xmax,ymin,ymax):
+	fig = figure(0)
+	ax = fig.add_subplot(111, aspect='equal')
+	ax.xmin=xmin
+	ax.xmax=xmax
+	ax.ymin=ymin
+	ax.ymax=ymax
+	clear(ax)
+	return ax
+
+def clear(ax):
+	pause(0.001)
+	cla()
+	ax.set_xlim(ax.xmin,ax.xmax)
+	ax.set_ylim(ax.ymin,ax.ymax)
 
 if __name__ == '__main__':
 
@@ -129,43 +143,44 @@ if __name__ == '__main__':
 	L_X, L_Y, L_angles, target = extract_data(filename)
 
 	L_pos, L_vec = get_positions(L_angles)
-
-	# plt.figure(figsize=(5,5))
-	# plt.xlim((-8,8))
-	# plt.ylim((-8,8))
-
-	# axes = plt.gca()
-	# axes.set_xlim(-8,8)
-	# axes.set_ylim(-8,8)
-
-	# line, = axes.plot()
-
-	# fig = plt.figure()
-	# axe = fig.add_subplot(1, 1, 1)
 	plt.ion()
-	fig1, ax1 = plt.subplots()
-	plot_arm(L_pos[0], L_vec[0], ax1)
-	#plt.xlim(-5,5)
-	#plt.ylim(-5,5)
-	plt.show()
-
-
-	for i in range (1,5):
-
-		plot_arm(L_pos[i], L_vec[i], ax1)
-		time.sleep(0.01)
-		
+	fig = plt.figure(0)
+	ax = fig.add_subplot(111, aspect='equal')
+	ax.xmin=-8
+	ax.xmax=8
+	ax.ymin=-8
+	ax.ymax=8
+	plt.pause(0.001)
 
 
 
+	for i in range (1,100):
+
+		plt.cla()
+		ax.set_xlim(ax.xmin,ax.xmax)
+		ax.set_ylim(ax.ymin,ax.ymax)
+		#print("pos")
+
+		pos = L_pos[i]
+		[v_1, v_2, v_3] = L_vec[i]
+
+		ax.scatter(pos[0], pos[1])
+		ax.plot([0,v_1[0]],[0,v_1[1]])
+		ax.plot([v_1[0],v_1[0]+v_2[0]],[v_1[1],v_1[1]+v_2[1]])
+		ax.plot([v_1[0]+v_2[0], v_1[0]+v_2[0]+v_3[0]],[v_1[1]+v_2[1],v_1[1]+v_2[1]+v_3[1]])
+		plt.show()
+		plt.pause(0.0001)
 
 
-	# plt.figure()
-		
-	# print("Target :", target)
-	# plt.scatter(L_X[0],L_Y[0],c='black')
-	# plt.scatter(L_X[1:-1],L_Y[1:-1],c='r')
-	# plt.scatter(L_X[-1],L_Y[-1],c='g')
-	# plt.scatter(target[0],target[1],c='b')
+	# plt.show()
+	# plt.ion()
+	# plt.figure(0)
+	# plt.axis([0,10,0,10])
 
-	#plt.show()
+	# for i in range (0,10):
+	# 	plt.scatter(i,i)
+	# 	plt.show()
+	# 	plt.pause(0.01)
+
+
+

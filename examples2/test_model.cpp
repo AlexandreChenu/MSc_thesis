@@ -63,6 +63,12 @@
 #include <algorithm>
 #include <cstdlib>
 
+#include <boost/test/unit_test.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+
 //#include "exp/examples2/ex_behav_nn.cpp"
 
 #include "/git/sferes2/exp/examples2/fit_behav.hpp"
@@ -101,6 +107,10 @@ int run_simu(T & model, int t_max, std::string filename) {
   	Eigen::Vector3d robot_angles;
     Eigen::Vector3d target;
     double dist;
+    std::ofstream logfile;
+
+    Eigen::Vector3d prev_pos; //compute previous position
+    Eigen::Vector3d output;
 
     //init tables
     for (int j = 0; j < 3 ; ++j){  
@@ -125,8 +135,10 @@ int run_simu(T & model, int t_max, std::string filename) {
 
 
   	//open logfile
-  	std::ofstream logfile;
   	logfile.open(filename);
+
+    //get gripper's position
+    prev_pos = forward_model(robot_angles);
 
   	//iterate through time
     for (int t=0; t< _t_max/_delta_t; ++t){
@@ -134,25 +146,25 @@ int run_simu(T & model, int t_max, std::string filename) {
           //TODO : what input do we use for our Neural network? 
           std::vector<float> inputs(2);
 
-          Eigen::Vector3d prev_pos; //compute previous position
-          prev_pos = forward_model(robot_angles);
+          
           inputs[0] = target[0] - prev_pos[0]; //get side distance to target
           inputs[1] = target[1] - prev_pos[1]; //get front distance to target
 
           logfile << "inputs 1: " << inputs[0] << " 2: " << inputs[1] << "\n";
+          std::cout << "inputs: " << inputs[0] << "   " << inputs[1] << std::endl;
 
-          //DATA GO THROUGH NN
-          model.nn().init(); //init neural network 
+          ////DATA GO THROUGH NN
+          //model.nn().init(); //init neural network 
 
-          for (int j = 0; j < model.gen().get_depth() + 1; ++j)
+          for (int j = 0; j < 10   + 1; ++j)
             model.nn().step(inputs);
 
-          Eigen::Vector3d output;
+          
           for (int indx = 0; indx < 3; ++indx){
             output[indx] = 2*(model.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
             robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
           }
-
+          std::cout << "outputs: " << model.nn().get_outf(0) << "   " << model.nn().get_outf(1) << "   " << model.nn().get_outf(2) << std::endl;
           logfile << "ouputs 1: " << output[0] << " 2: " << output[1] << "\n";
 
           //Eigen::Vector3d new_pos;
@@ -160,11 +172,6 @@ int run_simu(T & model, int t_max, std::string filename) {
 
           //write data into logfile
           logfile << "t: " << t << " x: " << prev_pos[0] << " y: " << prev_pos[1] << "\n";
-
-          dist = - sqrt(square(target.array() - prev_pos.array()).sum());
-
-          if (abs(dist) < 0.1) //we converged before the end of the time
-            break;
 
           // prev_pos = new_pos;
         }
@@ -185,15 +192,12 @@ int main(int argc, char **argv) {
     typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
     typedef PfWSum<weight_t> pf_t;
     typedef AfSigmoidBias<bias_t> af_t;
-    typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
+    typedef sferes::gen::Dnn<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
                                                                                        // TODO : change by hyper NN in order to test hyper NEAT 
     typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
 	typedef boost::archive::binary_iarchive ia_t;
 
 	phen_t model; 
-	phen_t *ptr_model;
-
-	ptr_model = &model;
 
 	const std::string filename = "/git/sferes2/exp/tmp/serialize_nn1.bin";
 
@@ -202,18 +206,31 @@ int main(int argc, char **argv) {
 	{
 	std::ifstream ifs(filename , std::ios::binary);
 	ia_t ia(ifs);
-    ia >> model;
+  ia >> model;
 	}
+
+  model.develop();
 
 	std::cout << "model loaded" << std::endl;
 
 	// model.nn().init(); //initialize model
 
+  // std::cout << "model size: " << model.gen().get_depth() << std::endl;
+
 	std::cout << "model initialized" << std::endl;
 
 	std::string logfile = "/git/sferes2/exp/tmp/logfile.txt";
 
-	run_simu(model, 3, logfile);
+	//run_simu(model, 3, logfile);
+
+  std::vector<float> inputs(2);
+  inputs[0] = 0.917577;
+  inputs[1] = -0.769202;
+
+  for (int j = 0; j < 100   + 1; ++j)
+            model.nn().step(inputs);
+
+  std::cout << "outputs: " << model.nn().get_outf(0) << "   " << model.nn().get_outf(1) << "   " << model.nn().get_outf(2) << std::endl;
 
 
 	}

@@ -47,6 +47,18 @@ def build(bld):
                 use = 'sferes2', 
                 target = 'test_model')
 
+    bld.program(features = 'cxx',
+                source = 'test_serial.cpp',
+                includes = '. ../../',
+                uselib = 'TBB BOOST EIGEN PTHREAD MPI',
+                use = 'sferes2',
+                target = 'test_serial')
 
+#    bld.program(features = 'cxx',
+#                source = 'ex_behav_serial.cpp',
+#                includes = '. ../../',
+#                uselib = 'TBB BOOST EIGEN PTHREAD MPI',
+#                use = 'sferes2',
+#                target = 'ex_behav_serial')
 
 
