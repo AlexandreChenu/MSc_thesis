@@ -127,10 +127,10 @@ struct Params {
   // TODO: move to a qd::
   struct pop {
       // number of initial random points
-      SFERES_CONST size_t init_size = 20; // nombre d'individus générés aléatoirement 
-      SFERES_CONST size_t size = 20; // size of a batch
-      SFERES_CONST size_t nb_gen = 501; // nbr de gen pour laquelle l'algo va tourner 
-      SFERES_CONST size_t dump_period = 100; 
+      SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
+      SFERES_CONST size_t size = 100; // size of a batch
+      SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t dump_period = 500; 
   };
 
   struct qd {
