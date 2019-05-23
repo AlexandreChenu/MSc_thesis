@@ -187,7 +187,7 @@ int main(int argc, char **argv)
     //phen_t model = *qd.stat<0>().best();
     //boost::shared_ptr<phen_t> m_ptr = qd.stat<0>().best();
 
-    model.nn().init();
+    //model.nn().init();
 
 
     //save model
@@ -283,7 +283,7 @@ int main(int argc, char **argv)
 
     logfile.close();
 
-    std::cout << "it's all good" << std::endl;
+    //std::cout << "it's all good" << std::endl;
     return 0;
 
   }
