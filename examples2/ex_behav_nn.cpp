@@ -283,7 +283,7 @@ int main(int argc, char **argv)
 
     logfile.close();
 
-    //std::cout << "it's all good" << std::endl;
+    std::cout << "ex_behav...done" << std::endl;
     return 0;
 
   }

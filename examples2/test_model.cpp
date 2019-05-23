@@ -150,7 +150,7 @@ int run_simu(T & model, int t_max, std::string filename) {
           inputs[0] = target[0] - prev_pos[0]; //get side distance to target
           inputs[1] = target[1] - prev_pos[1]; //get front distance to target
 
-          logfile << "inputs 1: " << inputs[0] << " 2: " << inputs[1] << "\n";
+          logfile << inputs[0] << "    " << inputs[1] << "    ";
           std::cout << "inputs: " << inputs[0] << "   " << inputs[1] << std::endl;
 
           ////DATA GO THROUGH NN
@@ -165,13 +165,15 @@ int run_simu(T & model, int t_max, std::string filename) {
             robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
           }
           std::cout << "outputs: " << model.nn().get_outf(0) << "   " << model.nn().get_outf(1) << "   " << model.nn().get_outf(2) << std::endl;
-          logfile << "ouputs 1: " << output[0] << " 2: " << output[1] << "\n";
+          logfile << output[0] << "    " << output[1] << "    ";
 
           //Eigen::Vector3d new_pos;
           prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
 
           //write data into logfile
-          logfile << "t: " << t << " x: " << prev_pos[0] << " y: " << prev_pos[1] << "\n";
+          logfile << robot_angles[0] << "    " << robot_angles[1] << "    " << robot_angles[2] << "    ";
+          logfile << prev_pos[0] << "    " << prev_pos[1] << "    ";
+          logfile << target[0] << "    " << target[1] << "\n";
 
           // prev_pos = new_pos;
         }
@@ -189,49 +191,45 @@ int main(int argc, char **argv) {
 
 	typedef nn_mlp<Params> fit_t; 
 	typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;
-    typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
-    typedef PfWSum<weight_t> pf_t;
-    typedef AfSigmoidBias<bias_t> af_t;
-    typedef sferes::gen::Dnn<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
+  typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
+  typedef PfWSum<weight_t> pf_t;
+  typedef AfSigmoidBias<bias_t> af_t;
+  typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
                                                                                        // TODO : change by hyper NN in order to test hyper NEAT 
-    typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
+  typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
 	typedef boost::archive::binary_iarchive ia_t;
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/tmp/serialize_nn1.bin";
+	const std::string filename = "/git/sferes2/exp/tmp/model_200.bin";
 
-	std::cout << "model loading" << std::endl;
 
+	std::cout << "model...loading" << std::endl;
 	{
 	std::ifstream ifs(filename , std::ios::binary);
 	ia_t ia(ifs);
   ia >> model;
 	}
+  std::cout << "model...loaded" << std::endl;
 
   model.develop();
-
-	std::cout << "model loaded" << std::endl;
-
-	// model.nn().init(); //initialize model
-
-  // std::cout << "model size: " << model.gen().get_depth() << std::endl;
+	std::cout << "model developed" << std::endl;
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/tmp/logfile.txt";
+	std::string logfile = "/git/sferes2/exp/tmp/log_model_500.txt";
 
-	//run_simu(model, 3, logfile);
+	run_simu(model, 5, logfile);
 
-  std::vector<float> inputs(2);
-  inputs[0] = 0.917577;
-  inputs[1] = -0.769202;
+  // std::vector<float> inputs(2);
+  // inputs[0] = 0.917577;
+  // inputs[1] = -0.769202;
 
-  for (int j = 0; j < 100   + 1; ++j)
-            model.nn().step(inputs);
+  // for (int j = 0; j < 100   + 1; ++j)
+  //           model.nn().step(inputs);
 
-  std::cout << "outputs: " << model.nn().get_outf(0) << "   " << model.nn().get_outf(1) << "   " << model.nn().get_outf(2) << std::endl;
-
+  // std::cout << "outputs: " << model.nn().get_outf(0) << "   " << model.nn().get_outf(1) << "   " << model.nn().get_outf(2) << std::endl;
+  std::cout << "test...done" << std::endl;
 
 	}
 

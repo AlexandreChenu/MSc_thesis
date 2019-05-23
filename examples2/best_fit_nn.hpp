@@ -37,7 +37,7 @@ namespace sferes {
           std::ofstream ofs(fmodel, std::ios::binary);
           oa_t oa(ofs);
           //oa << model;
-          oa << _best;
+          oa << *_best;
           }
           std::cout << "model written" << std::endl;}
         _cnt += 1;
