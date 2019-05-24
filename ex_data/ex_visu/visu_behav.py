@@ -62,17 +62,20 @@ if __name__ == '__main__':
 
 
 	### PLOT BEST FIT
-	filename = "/Users/mobby/git/ex_data/logfile_test.txt"
-		
-	L_X, L_Y, target = extract_data(filename)
 
-	plt.figure()
-		
-	print("Target :", target)
-	plt.scatter(L_X[0],L_Y[0],c='black')
-	plt.scatter(L_X[1:-1],L_Y[1:-1],c='r')
-	plt.scatter(L_X[-1],L_Y[-1],c='g')
-	plt.scatter(target[0],target[1],c='b')
+	for i in range(0,2000,500):
+
+		filename = "/Users/mobby/git/ex_data/test_model/log_model_" + str(i) + ".txt"
+			
+		L_X, L_Y, target = extract_data(filename)
+
+		plt.figure()
+			
+		print("Target :", target)
+		plt.scatter(L_X[0],L_Y[0],c='black')
+		plt.scatter(L_X[1:-1],L_Y[1:-1],c='r')
+		plt.scatter(L_X[-1],L_Y[-1],c='g')
+		plt.scatter(target[0],target[1],c='b')
 
 	plt.show()
 

@@ -81,7 +81,7 @@ using namespace sferes::gen::evo_float;
 
 struct Params {
   struct evo_float {
-    SFERES_CONST float mutation_rate = 0.5f;
+    SFERES_CONST float mutation_rate = 0.3f;
     SFERES_CONST float cross_rate = 0.1f;
     SFERES_CONST mutation_t mutation_type = polynomial;
     SFERES_CONST cross_over_t cross_over_type = sbx;
@@ -99,10 +99,10 @@ struct Params {
   struct dnn {
     SFERES_CONST size_t nb_inputs = 2; // right/left and up/down sensors
     SFERES_CONST size_t nb_outputs  = 3; //usage of each joint
-    SFERES_CONST size_t min_nb_neurons  = 10; 
-    SFERES_CONST size_t max_nb_neurons  = 20;
+    SFERES_CONST size_t min_nb_neurons  = 6;
+    SFERES_CONST size_t max_nb_neurons  = 10;
     SFERES_CONST size_t min_nb_conns  = 20;
-    SFERES_CONST size_t max_nb_conns  = 100;
+    SFERES_CONST size_t max_nb_conns  = 80;
     SFERES_CONST float  max_weight  = 2.0f;
     SFERES_CONST float  max_bias  = 2.0f;
 
@@ -127,10 +127,10 @@ struct Params {
   // TODO: move to a qd::
   struct pop {
       // number of initial random points
-      SFERES_CONST size_t init_size = 70; // nombre d'individus générés aléatoirement 
-      SFERES_CONST size_t size = 70; // size of a batch
+      SFERES_CONST size_t init_size = 50; // nombre d'individus générés aléatoirement 
+      SFERES_CONST size_t size = 50; // size of a batch
       SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
-      SFERES_CONST size_t dump_period = 500; 
+      SFERES_CONST size_t dump_period = 300; 
   };
 
   struct qd {
@@ -215,7 +215,7 @@ FIT_QD(nn_mlp){
           target[2] = 0; //get rid of z coordinate
           prev_pos[2] = 0;
 
-          dist -= sqrt(square(target.array() - prev_pos.array()).sum());
+          dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
         }
 
         this->_value = dist; //cumulative distance during the experiment

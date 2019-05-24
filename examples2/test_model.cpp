@@ -177,7 +177,7 @@ int run_simu(T & model, int t_max, std::string filename) {
 
           // prev_pos = new_pos;
         }
-    logfile << "target position x: " << target[0] << " y: " << target[1] <<"\n" ;
+    //logfile << "target position x: " << target[0] << " y: " << target[1] <<"\n" ;
     logfile.close();
 
     return 0;
@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/tmp/model_200.bin";
+	const std::string filename = "/git/sferes2/exp/ex_data/ex_model/model_1500.bin";
 
 
 	std::cout << "model...loading" << std::endl;
@@ -217,9 +217,9 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/tmp/log_model_500.txt";
+	std::string logfile = "/git/sferes2/exp/ex_data/test_model/log_model_1500.txt";
 
-	run_simu(model, 5, logfile);
+	run_simu(model, 10, logfile);
 
   // std::vector<float> inputs(2);
   // inputs[0] = 0.917577;
@@ -229,6 +229,7 @@ int main(int argc, char **argv) {
   //           model.nn().step(inputs);
 
   // std::cout << "outputs: " << model.nn().get_outf(0) << "   " << model.nn().get_outf(1) << "   " << model.nn().get_outf(2) << std::endl;
+  
   std::cout << "test...done" << std::endl;
 
 	}

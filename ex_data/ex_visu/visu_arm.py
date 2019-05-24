@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
 
 	### PLOT BEST FIT
-	filename = "/Users/mobby/git/ex_data/test_wangle/logfile_test.txt"
+	filename = "/Users/mobby/git/ex_data/test_model/log_model_1500.txt"
 		
 	L_X, L_Y, L_angles, target = extract_data(filename)
 
@@ -171,16 +171,7 @@ if __name__ == '__main__':
 		plt.show()
 		plt.pause(0.0001)
 
-
-	# plt.show()
-	# plt.ion()
-	# plt.figure(0)
-	# plt.axis([0,10,0,10])
-
-	# for i in range (0,10):
-	# 	plt.scatter(i,i)
-	# 	plt.show()
-	# 	plt.pause(0.01)
+	plt.show()
 
 
 
