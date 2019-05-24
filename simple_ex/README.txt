@@ -13,7 +13,7 @@ Algorithm's pipeline :
 2. Algorithm running 
 3. Results collection
 
-Dependences :
+Dependencies :
 The algorithm depends on :
 - NN2 module, in order to install it, please refer to Usage & installation section in the module's 
 github page https://github.com/sferes2/nn2.
@@ -26,3 +26,5 @@ How to launch it :
 - Install and modify all necessary dependences
 - Compile the experience with ./waf --exp simple_ex
 - Launch it with ./<path-to-executable>/simple_ebn
+
+Nota for AIRL project members: the Docker image available via the ac_env's Dockerfile  (https://gitlab.doc.ic.ac.uk/AIRL/airl_env/tree/ac/ac_env) allow you to launch the code without any additional installation.
