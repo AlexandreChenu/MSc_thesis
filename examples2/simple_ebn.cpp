@@ -134,7 +134,8 @@ int main(int argc, char **argv)
     typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
  
     typedef boost::fusion::vector< 
-        stat::BestFitNN<phen_t, Params>, 
+        //stat::BestFitNN<phen_t, Params>, 
+        stat::BestFit<phen_t, Params>,
         stat::QdContainer<phen_t, Params>, 
         stat::QdProgress<phen_t, Params> 
         >
