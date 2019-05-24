@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/ex_data/ex_model/model_1500.bin";
+	const std::string filename = "/git/sferes2/exp/ex_data/ex_model/model_600.bin";
 
 
 	std::cout << "model...loading" << std::endl;
@@ -217,7 +217,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/ex_data/test_model/log_model_1500.txt";
+	std::string logfile = "/git/sferes2/exp/ex_data/test_model/log_model_600.txt";
 
 	run_simu(model, 10, logfile);
 
