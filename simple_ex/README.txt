@@ -18,6 +18,9 @@ The algorithm depends on :
 - NN2 module, in order to install it, please refer to Usage & installation section in the module's 
 github page https://github.com/sferes2/nn2.
 - fit_behav.hpp, a file describing both QD algorithm's parameters and evaluation function.
+
+If you want to save the best model after each dump period, please uncomment line 137 and comment line 138 in order to 
+change the stats. The aglorithm will then depend on:
 - best_fit_nn.hpp, a modified version of SFERES2's best_fit.hpp implementation. best_fit_nn.hpp 
 refers to absolute path, you will have to manually change it. 
 TODO: change absolute path to relative path
