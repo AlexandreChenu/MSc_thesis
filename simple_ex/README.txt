@@ -1,5 +1,4 @@
-simple_ebn.cpp is a SFERES2 experience. It uses NN2 module to train a Neural Network in order to control a robot arm 
-with 3 motors to reach a fix target. 
+simple_ebn.cpp is a SFERES2 experience. It uses NN2 module to train a Neural Network in order to allow a robot arm to autonomously learn a controller to reach a fix target. 
 
 Neural Network :
 Inputs : - distance between the gripper and the target (x-axis)
