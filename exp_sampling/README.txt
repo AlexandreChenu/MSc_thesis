@@ -17,7 +17,7 @@ Dependencies :
 The algorithm depends on :
 - NN2 module, in order to install it, please refer to Usage & installation section in the module's 
 github page https://github.com/sferes2/nn2.
-- fit_behav.hpp, a file describing both QD algorithm's parameters and evaluation function.
+- fit_behav.hpp, a file describing both QD algorithm's parameters and evaluation function. You need to change this file in order to change the QD Algorithm and NN2 parameters.
 
 If you want to save the best model after each dump period, please uncomment line 137 and comment line 138 in order to 
 change the stats. The aglorithm will then depend on:
