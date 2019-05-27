@@ -42,7 +42,8 @@
 #include <sferes/run.hpp>
 #include <sferes/stat/best_fit.hpp>
 
-#include "/git/sferes2/exp/examples2/best_fit_nn.hpp"
+#include "/git/sferes2/exp/exp_sampling/best_fit_nn.hpp"
+//#include "/git/sferes2/exp/exp_sampling/fit_behav.hpp"
 
 #include <sferes/stat/qd_container.hpp>
 #include <sferes/stat/qd_selection.hpp>
@@ -110,11 +111,11 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
 
 
 int main(int argc, char **argv) 
-{
+{   
     using namespace sferes;
     using namespace nn;
 
-    std::cout << "STARTING INIT" <<std::endl;
+    std::cout << "start exp_sample" <<std::endl;
 
     typedef nn_mlp<Params> fit_t; 
 
@@ -134,8 +135,8 @@ int main(int argc, char **argv)
     typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
  
     typedef boost::fusion::vector< 
-        //stat::BestFitNN<phen_t, Params>, 
-        stat::BestFit<phen_t, Params>,
+        stat::BestFitNN<phen_t, Params>, 
+        //stat::BestFit<phen_t, Params>,
         stat::QdContainer<phen_t, Params>, 
         stat::QdProgress<phen_t, Params> 
         >
@@ -154,7 +155,8 @@ int main(int argc, char **argv)
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
 
     
-    std::cout << "ex_behav...done" << std::endl;
+    
+    std::cout << "exp_sample...done" << std::endl;
     return 0;
 
   }

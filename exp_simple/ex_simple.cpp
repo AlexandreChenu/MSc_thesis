@@ -42,7 +42,7 @@
 #include <sferes/run.hpp>
 #include <sferes/stat/best_fit.hpp>
 
-#include "/git/sferes2/exp/examples2/best_fit_nn.hpp"
+#include "/git/sferes2/exp/exp_simple/best_fit_nn.hpp"
 
 #include <sferes/stat/qd_container.hpp>
 #include <sferes/stat/qd_selection.hpp>
@@ -110,11 +110,11 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
 
 
 int main(int argc, char **argv) 
-{
+{   
     using namespace sferes;
     using namespace nn;
 
-    std::cout << "STARTING INIT" <<std::endl;
+    std::cout << "start simple_ebn" <<std::endl;
 
     typedef nn_mlp<Params> fit_t; 
 
@@ -135,6 +135,7 @@ int main(int argc, char **argv)
  
     typedef boost::fusion::vector< 
         stat::BestFitNN<phen_t, Params>, 
+        //stat::BestFit<phen_t, Params>,
         stat::QdContainer<phen_t, Params>, 
         stat::QdProgress<phen_t, Params> 
         >
@@ -152,8 +153,7 @@ int main(int argc, char **argv)
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
 
-    
-    std::cout << "ex_behav...done" << std::endl;
+    std::cout << "simple_ebn...done" << std::endl;
     return 0;
 
   }

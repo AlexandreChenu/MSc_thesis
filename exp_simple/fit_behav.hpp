@@ -57,8 +57,6 @@
 #include <sferes/qd/selector/population_based.hpp>
 #include <sferes/qd/selector/value_selector.hpp>
 
-
-
 #include <boost/test/unit_test.hpp>
 
 #include <modules/nn2/mlp.hpp>
@@ -67,7 +65,6 @@
 
 #include <modules/nn2/gen_dnn_ff.hpp>
 
-//#include <exp/examples2/phen_arm.hpp>
 
 #include <cmath>
 #include <algorithm>
@@ -119,7 +116,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 0.01; // TODO value ???
+      SFERES_CONST double l = 10; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -127,10 +124,10 @@ struct Params {
   // TODO: move to a qd::
   struct pop {
       // number of initial random points
-      SFERES_CONST size_t init_size = 50; // nombre d'individus générés aléatoirement 
-      SFERES_CONST size_t size = 50; // size of a batch
-      SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
-      SFERES_CONST size_t dump_period = 300; 
+      SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
+      SFERES_CONST size_t size = 100; // size of a batch
+      SFERES_CONST size_t nb_gen = 5001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t dump_period = 500; 
   };
 
   struct qd {
@@ -160,13 +157,13 @@ FIT_QD(nn_mlp){
         double dist = 0;
 
         //std::cout << "INIT" << std::endl;
-
+        target = {-0.211234, 0.59688, 0.0};
         robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
         //init tables
         for (int j = 0; j < 3 ; ++j){ 
                     motor_usage[j] = 0; //starting usage is null  
                     //robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
-                    target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
+                    //target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
                   }
 
         if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable (inside a circle of radius 1)
@@ -215,7 +212,7 @@ FIT_QD(nn_mlp){
           target[2] = 0; //get rid of z coordinate
           prev_pos[2] = 0;
 
-          dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+          dist = -sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
         }
 
         this->_value = dist; //cumulative distance during the experiment

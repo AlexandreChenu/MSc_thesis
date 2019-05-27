@@ -57,8 +57,6 @@
 #include <sferes/qd/selector/population_based.hpp>
 #include <sferes/qd/selector/value_selector.hpp>
 
-
-
 #include <boost/test/unit_test.hpp>
 
 #include <modules/nn2/mlp.hpp>
@@ -67,7 +65,6 @@
 
 #include <modules/nn2/gen_dnn_ff.hpp>
 
-//#include <exp/examples2/phen_arm.hpp>
 
 #include <cmath>
 #include <algorithm>
@@ -119,7 +116,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 0.01; // TODO value ???
+      SFERES_CONST double l = 10; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -127,10 +124,10 @@ struct Params {
   // TODO: move to a qd::
   struct pop {
       // number of initial random points
-      SFERES_CONST size_t init_size = 20; // nombre d'individus générés aléatoirement 
-      SFERES_CONST size_t size = 20; // size of a batch
-      SFERES_CONST size_t nb_gen = 1001; // nbr de gen pour laquelle l'algo va tourner 
-      SFERES_CONST size_t dump_period = 300; 
+      SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
+      SFERES_CONST size_t size = 100; // size of a batch
+      SFERES_CONST size_t nb_gen = 5001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t dump_period = 500; 
   };
 
   struct qd {
@@ -138,6 +135,11 @@ struct Params {
       SFERES_CONST size_t dim = 3;
       SFERES_CONST size_t behav_dim = 3; //taille du behavior descriptor
       SFERES_ARRAY(size_t, grid_shape, 100, 100, 100);
+  };
+
+  struct sample {
+
+      SFERES_CONST size_t n_samples = 100; //nombre d'environements aléatoirement générés
   };
 };
 
@@ -155,76 +157,102 @@ FIT_QD(nn_mlp){
         //std::cout << "EVALUATION" << std::endl;
 
         std::vector<double> motor_usage(3);
+        Eigen::MatrixXd motor_usages(Params::sample::n_samples,3);
         Eigen::Vector3d robot_angles;
         Eigen::Vector3d target;
-        double dist = 0;
+        std::vector<double> dists (Params::sample::n_samples);
+        double sum_dist = 0;
+        double mean_dist = 0;
+        Eigen::Vector3d sum_motor_usage;
 
-        //std::cout << "INIT" << std::endl;
+        for (int s = 0; s < Params::sample::n_samples ; ++s){ //iterate through several random environements
 
-        robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
-        target = {-0.211234, 0.59688, 0};
-        //init tables
-        for (int j = 0; j < 3 ; ++j){ 
+          //std::cout << "environment s = " << s << std::endl;
+
+          double dist = 0;
+
+          robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
+          for (int j = 0; j < 3 ; ++j){ 
                     motor_usage[j] = 0; //starting usage is null  
                     //robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
-                    //target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
-                  }
+                    target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
+                    }
 
-        if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable (inside a circle of radius 1)
-          if (target[0] > 0){
-            target[0] -= 1;
-          }
-          else{
-            target[0] += 1;
-          }
-          if (target[1] > 0){
-            target[1] -= 1;
-          }
-          else{
-            target[1] += 1; 
-        }
-      }
-
-        for (int t=0; t< _t_max/_delta_t; ++t){ //iterate through time
-
-          //TODO : what input do we use for our Neural network? 
-          std::vector<float> inputs(2);
-
-          Eigen::Vector3d prev_pos; //compute previous position
-
-          prev_pos = forward_model(robot_angles);
-
-          inputs[0] = target[0] - prev_pos[0]; //get side distance to target (-1 < input < 1)
-          inputs[1] = target[1] - prev_pos[1]; //get front distance to target (-1 < input < 1)
-
-          //DATA GO THROUGH NN
-          ind.nn().init(); //init neural network 
+          if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable (inside a circle of radius 1)
+            if (target[0] > 0){
+              target[0] -= 1;}
+            else{
+              target[0] += 1;}
           
-          //for (int j = 0; j < 100+ 1; ++j)
-          for (int j = 0; j < ind.gen().get_depth() + 1; ++j) //In case of FFNN
-            ind.nn().step(inputs);
-
-          Eigen::Vector3d output;
-          for (int indx = 0; indx < 3; ++indx){
-            output[indx] = 2*(ind.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
-            robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
-            motor_usage[indx] += abs(output[indx]); //Compute motor usage
+            if (target[1] > 0){
+              target[1] -= 1;}
+            else{
+              target[1] += 1; }
           }
 
-          prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
+          for (int t=0; t< _t_max/_delta_t; ++t){ //iterate through time
 
-          target[2] = 0; //get rid of z coordinate
-          prev_pos[2] = 0;
+            //TODO : what input do we use for our Neural network? 
+            std::vector<float> inputs(2);
 
-          dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+            Eigen::Vector3d prev_pos; //compute previous position
+
+            prev_pos = forward_model(robot_angles);
+
+            inputs[0] = target[0] - prev_pos[0]; //get side distance to target (-1 < input < 1)
+            inputs[1] = target[1] - prev_pos[1]; //get front distance to target (-1 < input < 1)
+
+            //DATA GO THROUGH NN
+            ind.nn().init(); //init neural network 
+            
+            //for (int j = 0; j < 100+ 1; ++j)
+            for (int j = 0; j < ind.gen().get_depth() + 1; ++j) //In case of FFNN
+              ind.nn().step(inputs);
+
+            Eigen::Vector3d output;
+            for (int indx = 0; indx < 3; ++indx){
+              output[indx] = 2*(ind.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
+              robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
+              motor_usage[indx] += abs(output[indx]); //Compute motor usage
+            }
+
+            prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
+
+            target[2] = 0; //get rid of z coordinate
+            prev_pos[2] = 0;
+
+            dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+        }
+        dists[s] = dist;
+        motor_usages(s,0) = motor_usage[0]; //TODO: Generalize to n arms
+        motor_usages(s,1) = motor_usage[1];
+        motor_usages(s,2) = motor_usage[2];
+        } 
+
+        // for(std::vector<int>::iterator it = dists.begin(); it != dists.end(); ++it)
+        //   sum_dist+= *it;
+
+        sum_motor_usage[0] = 0; //init sum to zero
+        sum_motor_usage[1] = 0;
+        sum_motor_usage[2] = 0;
+
+        for (int s = 0; s < Params::sample::n_samples ; ++s){
+          sum_dist += dists[s];
+          sum_motor_usage[0] += motor_usages(s,0);
+          sum_motor_usage[1] += motor_usages(s,1);
+          sum_motor_usage[2] += motor_usages(s,2);
         }
 
-        this->_value = dist; //cumulative distance during the experiment
+        mean_dist = sum_dist/Params::sample::n_samples;
+
+        this->_value = mean_dist; //mean cumulative distance 
 
         std::vector<double> desc(3);
-        desc = {motor_usage[0], motor_usage[1], motor_usage[2]};
+        desc = {sum_motor_usage[0]/Params::sample::n_samples, sum_motor_usage[1]/Params::sample::n_samples, sum_motor_usage[2]/Params::sample::n_samples};
 
         this->set_desc(desc); //Which behavior descriptor? The three motors angles 
+
+        //std::cout << "eval done" << std::endl;
       }
 
   Eigen::Vector3d forward_model(Eigen::VectorXd a){

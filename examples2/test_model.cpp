@@ -112,10 +112,13 @@ int run_simu(T & model, int t_max, std::string filename) {
     Eigen::Vector3d prev_pos; //compute previous position
     Eigen::Vector3d output;
 
+    robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
+    target = {-0.211234, 0.59688, 0.0};
+
     //init tables
     for (int j = 0; j < 3 ; ++j){  
-            robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
-            target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
+            //robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
+            //target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
             }
 
     if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable
@@ -201,7 +204,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/ex_data/ex_model/model_600.bin";
+	const std::string filename = "/git/sferes2/exp/tmp/model_5000.bin";
 
 
 	std::cout << "model...loading" << std::endl;
@@ -217,7 +220,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/ex_data/test_model/log_model_600.txt";
+	std::string logfile = "/git/sferes2/exp/ex_data/log_model_5000.txt";
 
 	run_simu(model, 10, logfile);
 

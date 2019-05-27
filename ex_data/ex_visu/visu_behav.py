@@ -64,21 +64,23 @@ if __name__ == '__main__':
 
 	### PLOT BEST FIT
 
-	for i in range(0,2500,500):
+	# for i in range(0,2500,500):
 
-		filename = "/Users/mobby/git/ex_data/test_model/log_model_" + str(i) + ".txt"
+	# 	filename = "/Users/mobby/git/ex_data/test_model/log_model_" + str(i) + ".txt"
 			
-		L_X, L_Y, target = extract_data(filename)
+	# 	L_X, L_Y, target = extract_data(filename)
 
-		plt.figure()
+	# 	plt.figure()
 			
-		print("Target :", target)
-		plt.scatter(L_X[0],L_Y[0],c='black')
-		plt.scatter(L_X[1:-1],L_Y[1:-1],c='r')
-		plt.scatter(L_X[-1],L_Y[-1],c='g')
-		plt.scatter(target[0],target[1],c='b')
+	# 	print("Target :", target)
+	# 	plt.scatter(L_X[0],L_Y[0],c='black')
+	# 	plt.scatter(L_X[1:-1],L_Y[1:-1],c='r')
+	# 	plt.scatter(L_X[-1],L_Y[-1],c='g')
+	# 	plt.scatter(target[0],target[1],c='b')
 
-	filename = "/Users/mobby/git/ex_data/test_model/log_model_2000.txt"
+	extension = input("Which file would you want to visualize ? (it should be in ex_data directory) ")
+
+	filename = "/Users/mobby/git/ex_data/" + extension
 			
 	L_X, L_Y, target = extract_data(filename)
 

@@ -138,7 +138,9 @@ if __name__ == '__main__':
 
 
 	### PLOT BEST FIT
-	filename = "/Users/mobby/git/ex_data/test_model/log_model_1500.txt"
+	extension = input("Which file would you want to visualize ? (it should be in ex_data directory) ")
+
+	filename = "/Users/mobby/git/ex_data/" + extension
 		
 	L_X, L_Y, L_angles, target = extract_data(filename)
 
@@ -146,10 +148,10 @@ if __name__ == '__main__':
 	plt.ion()
 	fig = plt.figure(0)
 	ax = fig.add_subplot(111, aspect='equal')
-	ax.xmin=-8
-	ax.xmax=8
-	ax.ymin=-8
-	ax.ymax=8
+	ax.xmin=-2
+	ax.xmax=2
+	ax.ymin=-2
+	ax.ymax=2
 	plt.pause(0.001)
 
 

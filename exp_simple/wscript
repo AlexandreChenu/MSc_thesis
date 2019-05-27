@@ -13,10 +13,10 @@ def build(bld):
 
     # simple_ebn
     bld.program(features = 'cxx',
-                source = 'simple_ebn.cpp',
+                source = 'ex_simple.cpp',
                 includes = '. ../../',
                 uselib = 'TBB BOOST EIGEN PTHREAD MPI',
                 use = 'sferes2',
-                target = 'simple_ebn')
+                target = 'ex_simple')
 
 
