@@ -34,6 +34,7 @@
 
 #include <iostream>
 #include <Eigen/Core>
+#include <random>
 
 #include <sferes/eval/parallel.hpp>
 #include <sferes/gen/evo_float.hpp>
@@ -78,7 +79,7 @@ using namespace sferes::gen::evo_float;
 
 struct Params {
   struct evo_float {
-    SFERES_CONST float mutation_rate = 0.3f;
+    SFERES_CONST float mutation_rate = 0.5f;
     SFERES_CONST float cross_rate = 0.1f;
     SFERES_CONST mutation_t mutation_type = polynomial;
     SFERES_CONST cross_over_t cross_over_type = sbx;
@@ -97,7 +98,7 @@ struct Params {
     SFERES_CONST size_t nb_inputs = 2; // right/left and up/down sensors
     SFERES_CONST size_t nb_outputs  = 3; //usage of each joint
     SFERES_CONST size_t min_nb_neurons  = 6;
-    SFERES_CONST size_t max_nb_neurons  = 10;
+    SFERES_CONST size_t max_nb_neurons  = 20;
     SFERES_CONST size_t min_nb_conns  = 20;
     SFERES_CONST size_t max_nb_conns  = 80;
     SFERES_CONST float  max_weight  = 2.0f;
@@ -126,7 +127,7 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 100; // size of a batch
-      SFERES_CONST size_t nb_gen = 5001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
       SFERES_CONST size_t dump_period = 500; 
   };
 
@@ -139,7 +140,7 @@ struct Params {
 
   struct sample {
 
-      SFERES_CONST size_t n_samples = 100; //nombre d'environements aléatoirement générés
+      SFERES_CONST size_t n_samples = 10; //nombre d'environements aléatoirement générés
   };
 };
 
@@ -160,47 +161,40 @@ FIT_QD(nn_mlp){
         Eigen::MatrixXd motor_usages(Params::sample::n_samples,3);
         Eigen::Vector3d robot_angles;
         Eigen::Vector3d target;
-        std::vector<double> dists (Params::sample::n_samples);
-        double sum_dist = 0;
-        double mean_dist = 0;
-        Eigen::Vector3d sum_motor_usage;
+        std::vector<double> dists(Params::sample::n_samples);
+        // double sum_dist = 0;
+        // double mean_dist = 0;
+        // Eigen::Vector3d sum_motor_usage;
+
+        double median_dist;
+        std::vector<double> motor_usage_v0(Params::sample::n_samples);
+        std::vector<double> motor_usage_v1(Params::sample::n_samples);
+        std::vector<double> motor_usage_v2(Params::sample::n_samples);
+        std::vector<double> motor_medians(3);
+
+        Eigen::MatrixXd samples(Params::sample::n_samples,2); //init samples with cluster sampling
+        samples = cluster_sampling(Params::sample::n_samples,2);
 
         for (int s = 0; s < Params::sample::n_samples ; ++s){ //iterate through several random environements
 
-          //std::cout << "environment s = " << s << std::endl;
-
-          double dist = 0;
-
+          //init data
           robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
           for (int j = 0; j < 3 ; ++j){ 
                     motor_usage[j] = 0; //starting usage is null  
-                    //robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
-                    target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
                     }
 
-          if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable (inside a circle of radius 1)
-            if (target[0] > 0){
-              target[0] -= 1;}
-            else{
-              target[0] += 1;}
-          
-            if (target[1] > 0){
-              target[1] -= 1;}
-            else{
-              target[1] += 1; }
-          }
+          target[0] = samples(s,0);
+          target[1] = samples(s,1);
+
+          std::vector<float> inputs(2);//TODO : what input do we use for our Neural network?
 
           for (int t=0; t< _t_max/_delta_t; ++t){ //iterate through time
 
-            //TODO : what input do we use for our Neural network? 
-            std::vector<float> inputs(2);
-
             Eigen::Vector3d prev_pos; //compute previous position
-
             prev_pos = forward_model(robot_angles);
 
-            inputs[0] = target[0] - prev_pos[0]; //get side distance to target (-1 < input < 1)
-            inputs[1] = target[1] - prev_pos[1]; //get front distance to target (-1 < input < 1)
+            inputs[0] = target[0] - prev_pos[0]; //get side distance to target (-2 < input < 2)
+            inputs[1] = target[1] - prev_pos[1]; //get front distance to target (-2 < input < 2)
 
             //DATA GO THROUGH NN
             ind.nn().init(); //init neural network 
@@ -213,47 +207,81 @@ FIT_QD(nn_mlp){
             for (int indx = 0; indx < 3; ++indx){
               output[indx] = 2*(ind.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
               robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
-              motor_usage[indx] += abs(output[indx]); //Compute motor usage
+              //motor_usage[indx] += abs(output[indx]); //Compute motor usage
+              motor_usage[indx] += output[indx]; //Compute motor usage
             }
 
             prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
 
-            target[2] = 0; //get rid of z coordinate
+            target[2] = 0; //get rid of z coordinates
             prev_pos[2] = 0;
 
             dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
         }
         dists[s] = dist;
-        motor_usages(s,0) = motor_usage[0]; //TODO: Generalize to n arms
-        motor_usages(s,1) = motor_usage[1];
-        motor_usages(s,2) = motor_usage[2];
+        motor_usage_v0[s] = motor_usage[0]; //TODO: Generalize to n arms
+        motor_usage_v1[s] = motor_usage[1];
+        motor_usage_v2[s] = motor_usage[2];
         } 
 
-        // for(std::vector<int>::iterator it = dists.begin(); it != dists.end(); ++it)
-        //   sum_dist+= *it;
+        median_dist = median(dists);
+        motor_medians[0] = median(motor_usage_v0);
+        motor_medians[1] = median(motor_usage_v1);
+        motor_medians[2] = median(motor_usage_v2);
 
-        sum_motor_usage[0] = 0; //init sum to zero
-        sum_motor_usage[1] = 0;
-        sum_motor_usage[2] = 0;
+        //mean_dist = sum_dist/Params::sample::n_samples; //TODO: change for median
 
-        for (int s = 0; s < Params::sample::n_samples ; ++s){
-          sum_dist += dists[s];
-          sum_motor_usage[0] += motor_usages(s,0);
-          sum_motor_usage[1] += motor_usages(s,1);
-          sum_motor_usage[2] += motor_usages(s,2);
-        }
-
-        mean_dist = sum_dist/Params::sample::n_samples;
-
-        this->_value = mean_dist; //mean cumulative distance 
+        this->_value = median_dist; //negative mean cumulative distance 
 
         std::vector<double> desc(3);
-        desc = {sum_motor_usage[0]/Params::sample::n_samples, sum_motor_usage[1]/Params::sample::n_samples, sum_motor_usage[2]/Params::sample::n_samples};
+        desc = {motor_medians[0], motor_medians[1], motor_medians[2]};
 
-        this->set_desc(desc); //Which behavior descriptor? The three motors angles 
+        this->set_desc(desc); //mean usage of each motor
 
         //std::cout << "eval done" << std::endl;
       }
+
+  double median(std::vector<double> &v)
+  {
+    size_t n = v.size() / 2;
+    std::nth_element(v.begin(), v.begin()+n, v.end());
+    return v[n];
+  }
+
+  Eigen::MatrixXd cluster_sampling(int &n_s)
+  { 
+    Eigen::MatrixXd samples(n_s,2);
+
+    double dist = 0;
+    double radius = 0;
+    double theta = 0;
+
+    for (int i=0; i < n_s/4; ++i){
+      radius = 0.25*((double) rand() / (RAND_MAX)); //radius E[0,1]
+      theta = 2*M_PI*(((double) rand() / (RAND_MAX))-0.5);
+      samples(i,0) = radius*cos(theta);
+      samples(i,1) = radius*sin(theta);
+    }
+    for (int i=n_s/4; i< n_s/2 ; ++i){
+      radius = 0.25*((double) rand() / (RAND_MAX)) + 0.25 ; //radius E[0,1]
+      theta = 2*M_PI*(((double) rand() / (RAND_MAX))-0.5);
+      samples(i,0) = radius*cos(theta);
+      samples(i,1) = radius*sin(theta);
+    }
+    for (int i=n_s/2; i< 3*n_s/4 ; ++i){
+      radius = 0.25*((double) rand() / (RAND_MAX)) + 0.5; //radius E[0,1]
+      theta = 2*M_PI*(((double) rand() / (RAND_MAX))-0.5);
+      samples(i,0) = radius*cos(theta);
+      samples(i,1) = radius*sin(theta);
+    }
+    for (int i=3*n_s/4; i< n_s ; ++i){
+      radius = 0.25*((double) rand() / (RAND_MAX)) + 0.75; //radius E[0,1]
+      theta = 2*M_PI*(((double) rand() / (RAND_MAX))-0.5);
+      samples(i,0) = radius*cos(theta);
+      samples(i,1) = radius*sin(theta);
+    }
+    return samples;
+  }
 
   Eigen::Vector3d forward_model(Eigen::VectorXd a){
     
@@ -280,6 +308,8 @@ FIT_QD(nn_mlp){
   }
 
 private:
+  //std::default_random_engine generator; 
+  //std::uniform_real_distribution<double> distribution(-1.0,1.0);
   double _vmax = 1;
   double _delta_t = 0.1;
   double _t_max = 10; //TMax guidé poto
