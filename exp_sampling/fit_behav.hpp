@@ -213,13 +213,14 @@ FIT_QD(nn_mlp){
               //motor_usage[indx] += abs(output[indx]); //Compute motor usage
               motor_usage[indx] += output[indx]; //Compute motor usage
             }
-
             prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
 
             target[2] = 0; //get rid of z coordinates
             prev_pos[2] = 0;
 
-            dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+            //dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+            dist -= 0.1*t*sqrt(square(target.array() - prev_pos.array()).sum());
+
         }
         dists[s] = dist;
         motor_usage_v0[s] = motor_usage[0]; //TODO: Generalize to n arms
