@@ -95,12 +95,12 @@ struct Params {
   };
 
   struct dnn {
-    SFERES_CONST size_t nb_inputs = 2; // right/left and up/down sensors
+    SFERES_CONST size_t nb_inputs = 5; // right/left and up/down sensors
     SFERES_CONST size_t nb_outputs  = 3; //usage of each joint
-    SFERES_CONST size_t min_nb_neurons  = 6;
-    SFERES_CONST size_t max_nb_neurons  = 20;
-    SFERES_CONST size_t min_nb_conns  = 20;
-    SFERES_CONST size_t max_nb_conns  = 80;
+    SFERES_CONST size_t min_nb_neurons  = 5;
+    SFERES_CONST size_t max_nb_neurons  = 50;
+    SFERES_CONST size_t min_nb_conns  = 30;
+    SFERES_CONST size_t max_nb_conns  = 100;
     SFERES_CONST float  max_weight  = 2.0f;
     SFERES_CONST float  max_bias  = 2.0f;
 
@@ -127,7 +127,7 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 100; // size of a batch
-      SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t nb_gen = 3001; // nbr de gen pour laquelle l'algo va tourner 
       SFERES_CONST size_t dump_period = 500; 
   };
 
@@ -140,7 +140,7 @@ struct Params {
 
   struct sample {
 
-      SFERES_CONST size_t n_samples = 10; //nombre d'environements aléatoirement générés
+      SFERES_CONST size_t n_samples = 100; //nombre d'environements aléatoirement générés
   };
 };
 
@@ -165,7 +165,7 @@ FIT_QD(nn_mlp){
         // double sum_dist = 0;
         // double mean_dist = 0;
         // Eigen::Vector3d sum_motor_usage;
-
+        double dist = 0;
         double median_dist;
         std::vector<double> motor_usage_v0(Params::sample::n_samples);
         std::vector<double> motor_usage_v1(Params::sample::n_samples);
@@ -173,7 +173,7 @@ FIT_QD(nn_mlp){
         std::vector<double> motor_medians(3);
 
         Eigen::MatrixXd samples(Params::sample::n_samples,2); //init samples with cluster sampling
-        samples = cluster_sampling(Params::sample::n_samples,2);
+        samples = cluster_sampling(Params::sample::n_samples);
 
         for (int s = 0; s < Params::sample::n_samples ; ++s){ //iterate through several random environements
 
@@ -186,7 +186,7 @@ FIT_QD(nn_mlp){
           target[0] = samples(s,0);
           target[1] = samples(s,1);
 
-          std::vector<float> inputs(2);//TODO : what input do we use for our Neural network?
+          std::vector<float> inputs(5);//TODO : what input do we use for our Neural network?
 
           for (int t=0; t< _t_max/_delta_t; ++t){ //iterate through time
 
@@ -195,6 +195,9 @@ FIT_QD(nn_mlp){
 
             inputs[0] = target[0] - prev_pos[0]; //get side distance to target (-2 < input < 2)
             inputs[1] = target[1] - prev_pos[1]; //get front distance to target (-2 < input < 2)
+            inputs[2] = robot_angles[0];
+            inputs[3] = robot_angles[1];
+            inputs[4] = robot_angles[2];
 
             //DATA GO THROUGH NN
             ind.nn().init(); //init neural network 
@@ -229,16 +232,15 @@ FIT_QD(nn_mlp){
         motor_medians[1] = median(motor_usage_v1);
         motor_medians[2] = median(motor_usage_v2);
 
-        //mean_dist = sum_dist/Params::sample::n_samples; //TODO: change for median
+        double dist_metric = median_dist;
 
-        this->_value = median_dist; //negative mean cumulative distance 
+        this->_value = dist_metric; //negative mean cumulative distance 
 
         std::vector<double> desc(3);
         desc = {motor_medians[0], motor_medians[1], motor_medians[2]};
 
         this->set_desc(desc); //mean usage of each motor
 
-        //std::cout << "eval done" << std::endl;
       }
 
   double median(std::vector<double> &v)
@@ -248,7 +250,7 @@ FIT_QD(nn_mlp){
     return v[n];
   }
 
-  Eigen::MatrixXd cluster_sampling(int &n_s)
+  Eigen::MatrixXd cluster_sampling(int n_s)
   { 
     Eigen::MatrixXd samples(n_s,2);
 
@@ -312,5 +314,5 @@ private:
   //std::uniform_real_distribution<double> distribution(-1.0,1.0);
   double _vmax = 1;
   double _delta_t = 0.1;
-  double _t_max = 10; //TMax guidé poto
+  double _t_max = 15; //TMax guidé poto
 };
