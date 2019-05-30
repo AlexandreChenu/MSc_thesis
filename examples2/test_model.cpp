@@ -138,22 +138,30 @@ int run_simu(T & model, int t_max, std::string filename) {
         }
       }
 
+    double radius;
+    double theta;
 
-  	//open logfile
-  	logfile.open(filename);
+    radius = ((double) rand() / (RAND_MAX));
+    theta = 2*M_PI*((double) rand() / (RAND_MAX)-0.5);
+    
+    //open logfile
+    logfile.open(filename);
 
     //get gripper's position
     prev_pos = forward_model(robot_angles);
 
+    std::vector<float> inputs(5);
   	//iterate through time
     for (int t=0; t< _t_max/_delta_t; ++t){
 
           //TODO : what input do we use for our Neural network? 
-          std::vector<float> inputs(2);
-
+          //std::vector<float> inputs(5);
           
           inputs[0] = target[0] - prev_pos[0]; //get side distance to target
           inputs[1] = target[1] - prev_pos[1]; //get front distance to target
+	  inputs[2] = robot_angles[0];
+	  inputs[3] = robot_angles[1];
+	  inputs[4] = robot_angles[2];
 
           logfile << inputs[0] << "    " << inputs[1] << "    ";
           std::cout << "inputs: " << inputs[0] << "   " << inputs[1] << std::endl;
@@ -163,7 +171,6 @@ int run_simu(T & model, int t_max, std::string filename) {
 
           for (int j = 0; j < 10   + 1; ++j)
             model.nn().step(inputs);
-
           
           for (int indx = 0; indx < 3; ++indx){
             output[indx] = 2*(model.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
@@ -206,7 +213,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/ex_data/test_2D_new_metric/model_5000.bin";
+	const std::string filename = "/git/sferes2/exp/tmp/model_5000.bin";
 
 
 	std::cout << "model...loading" << std::endl;
@@ -222,7 +229,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/ex_data/test_2D_new_metric/log_model_5000_2.txt";
+	std::string logfile = "/git/sferes2/exp/tmp/log_model_5000.txt";
 
 	run_simu(model, 10, logfile);
 
