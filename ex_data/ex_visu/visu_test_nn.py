@@ -109,9 +109,14 @@ def plot_arm(pos, vecs,color, iteration):
 if __name__ == '__main__':
 
 	plt.figure(figsize=(5,5))
-	plt.title('Evoluation of angles after 500 and 1000 iterations')
+	plt.title('Evoluation of angles after 500 and 2000 iterations')
 	plt.xlim((-8,8))
 	plt.ylim((-8,8))
+
+	#initialisation
+	angle = [3 , -3 , 3]
+	pos, v_1, v_2, v_3 = get_position(angle[0], angle[1], angle[2])
+	plot_arm(pos, [v_1, v_2, v_3], 'black', 'initialisation')
 
 	#after 500 iterations
 	#angle = [-0.195093 , -0.459253 , -0.272114]

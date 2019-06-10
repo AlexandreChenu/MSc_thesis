@@ -157,6 +157,7 @@ int main(int argc, char **argv)
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
 
+
     std::cout << "exp_sample...done" << std::endl;
     return 0;
 

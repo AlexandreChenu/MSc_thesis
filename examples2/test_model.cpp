@@ -115,34 +115,21 @@ int run_simu(T & model, int t_max, std::string filename) {
     robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
     //target = {0.5, 0.5, 0.0};
 
-    //init tables
-    for (int j = 0; j < 3 ; ++j){  
-            //robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
-            target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
-            //target[j] = 2*(((double) rand() / (RAND_MAX))-0.5);
-            }
-    target = {-0.2, -0.2, 0.0};
-
-    if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable
-          if (target[0] > 0){
-            target[0] -= 1;
-          }
-          else{
-            target[0] += 1;
-          }
-          if (target[1] > 0){
-            target[1] -= 1;
-          }
-          else{
-            target[1] += 1; 
-        }
-      }
+    //target = {-0.2, -0.2, 0.0};
 
     double radius;
     double theta;
 
     radius = ((double) rand() / (RAND_MAX));
     theta = 2*M_PI*((double) rand() / (RAND_MAX)-0.5);
+
+    target[0] = radius*cos(theta);
+    target[1] = radius*sin(theta);
+    target[2] = 0;
+
+    //target = {0.2,0.2,0.0};
+    //target = {-1, 0.0, 0.0};
+    target = {-0.211234, 0.59688,0.0};
     
     //open logfile
     logfile.open(filename);
@@ -151,6 +138,7 @@ int run_simu(T & model, int t_max, std::string filename) {
     prev_pos = forward_model(robot_angles);
 
     std::vector<float> inputs(5);
+    //std::vector<float> inputs(2);
   	//iterate through time
     for (int t=0; t< _t_max/_delta_t; ++t){
 
@@ -159,9 +147,9 @@ int run_simu(T & model, int t_max, std::string filename) {
           
           inputs[0] = target[0] - prev_pos[0]; //get side distance to target
           inputs[1] = target[1] - prev_pos[1]; //get front distance to target
-	  inputs[2] = robot_angles[0];
-	  inputs[3] = robot_angles[1];
-	  inputs[4] = robot_angles[2];
+	        inputs[2] = robot_angles[0];
+	        inputs[3] = robot_angles[1];
+	        inputs[4] = robot_angles[2];
 
           logfile << inputs[0] << "    " << inputs[1] << "    ";
           std::cout << "inputs: " << inputs[0] << "   " << inputs[1] << std::endl;
@@ -187,9 +175,7 @@ int run_simu(T & model, int t_max, std::string filename) {
           logfile << prev_pos[0] << "    " << prev_pos[1] << "    ";
           logfile << target[0] << "    " << target[1] << "\n";
 
-          // prev_pos = new_pos;
         }
-    //logfile << "target position x: " << target[0] << " y: " << target[1] <<"\n" ;
     logfile.close();
 
     return 0;
@@ -213,7 +199,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/tmp/model_5000.bin";
+	const std::string filename = "/git/sferes2/exp/tmp/model_20000.bin";
 
 
 	std::cout << "model...loading" << std::endl;
@@ -229,7 +215,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/tmp/log_model_5000.txt";
+	std::string logfile = "/git/sferes2/exp/ex_data/log_model_20000.txt";
 
 	run_simu(model, 10, logfile);
 
@@ -242,7 +228,6 @@ int main(int argc, char **argv) {
 
   // std::cout << "outputs: " << model.nn().get_outf(0) << "   " << model.nn().get_outf(1) << "   " << model.nn().get_outf(2) << std::endl;
   
-
   
   std::cout << "test...done" << std::endl;
 

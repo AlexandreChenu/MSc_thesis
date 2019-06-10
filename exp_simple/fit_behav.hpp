@@ -78,7 +78,7 @@ using namespace sferes::gen::evo_float;
 
 struct Params {
   struct evo_float {
-    SFERES_CONST float mutation_rate = 0.3f;
+    SFERES_CONST float mutation_rate = 0.4f;
     SFERES_CONST float cross_rate = 0.1f;
     SFERES_CONST mutation_t mutation_type = polynomial;
     SFERES_CONST cross_over_t cross_over_type = sbx;
@@ -94,10 +94,10 @@ struct Params {
   };
 
   struct dnn {
-    SFERES_CONST size_t nb_inputs = 2; // right/left and up/down sensors
+    SFERES_CONST size_t nb_inputs = 5; // right/left and up/down sensors
     SFERES_CONST size_t nb_outputs  = 3; //usage of each joint
-    SFERES_CONST size_t min_nb_neurons  = 6;
-    SFERES_CONST size_t max_nb_neurons  = 10;
+    SFERES_CONST size_t min_nb_neurons  = 15;
+    SFERES_CONST size_t max_nb_neurons  = 50;
     SFERES_CONST size_t min_nb_conns  = 20;
     SFERES_CONST size_t max_nb_conns  = 80;
     SFERES_CONST float  max_weight  = 2.0f;
@@ -116,7 +116,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 10; // TODO value ???
+      SFERES_CONST double l = 18; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -126,7 +126,7 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 100; // size of a batch
-      SFERES_CONST size_t nb_gen = 5001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
       SFERES_CONST size_t dump_period = 500; 
   };
 
@@ -157,34 +157,17 @@ FIT_QD(nn_mlp){
         double dist = 0;
 
         //std::cout << "INIT" << std::endl;
-        target = {-0.211234, 0.59688, 0.0};
+        target = {-0.211234, 0.59688,0.0};
         robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
         //init tables
         for (int j = 0; j < 3 ; ++j){ 
-                    motor_usage[j] = 0; //starting usage is null  
-                    //robot_angles[j] = M_PI*(((double) rand() / (RAND_MAX))-0.5); //random init for robot angles
-                    //target[j] = 2*(((double) rand() / (RAND_MAX))-0.5); //random init for target position
-                  }
+                    motor_usage[j] = 0;} //starting usage is null 
 
-        if (sqrt(target[0]*target[0] + target[1]*target[1]) > 1){ //check is the target is reachable (inside a circle of radius 1)
-          if (target[0] > 0){
-            target[0] -= 1;
-          }
-          else{
-            target[0] += 1;
-          }
-          if (target[1] > 0){
-            target[1] -= 1;
-          }
-          else{
-            target[1] += 1; 
-        }
-      }
 
         for (int t=0; t< _t_max/_delta_t; ++t){ //iterate through time
 
           //TODO : what input do we use for our Neural network? 
-          std::vector<float> inputs(2);
+          std::vector<float> inputs(5);
 
           Eigen::Vector3d prev_pos; //compute previous position
 
@@ -192,6 +175,9 @@ FIT_QD(nn_mlp){
 
           inputs[0] = target[0] - prev_pos[0]; //get side distance to target (-1 < input < 1)
           inputs[1] = target[1] - prev_pos[1]; //get front distance to target (-1 < input < 1)
+          inputs[2] = robot_angles[0];
+          inputs[3] = robot_angles[1];
+          inputs[4] = robot_angles[2];
 
           //DATA GO THROUGH NN
           ind.nn().init(); //init neural network 
@@ -204,7 +190,7 @@ FIT_QD(nn_mlp){
           for (int indx = 0; indx < 3; ++indx){
             output[indx] = 2*(ind.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
             robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
-            motor_usage[indx] += abs(output[indx]); //Compute motor usage
+            motor_usage[indx] += output[indx]; //Compute motor usage
           }
 
           prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
@@ -212,7 +198,15 @@ FIT_QD(nn_mlp){
           target[2] = 0; //get rid of z coordinate
           prev_pos[2] = 0;
 
-          dist = -sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+          if (sqrt(square(target.array() - prev_pos.array()).sum()) < 0.1){
+            dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum());
+          }
+
+          else {
+          //dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+          dist -= log(1+t)*sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+          //dist -= sqrt(square(target.array() - prev_pos.array()).sum());
+          }
         }
 
         this->_value = dist; //cumulative distance during the experiment

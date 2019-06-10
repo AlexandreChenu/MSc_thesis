@@ -108,13 +108,12 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
  }
 
 
-
 int main(int argc, char **argv) 
 {   
     using namespace sferes;
     using namespace nn;
 
-    std::cout << "start simple_ebn" <<std::endl;
+    std::cout << "start...simple example" <<std::endl;
 
     typedef nn_mlp<Params> fit_t; 
 
@@ -127,12 +126,18 @@ int main(int argc, char **argv)
     typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
     typedef qd::selector::Uniform<phen_t, Params> select_t; //TODO : test other selector
 
+
+    //typedef qd::selector::getFitness ValueSelect_t;
+    //typedef qd::selector::Tournament<phen_t, ValueSelect_t, Params> select_t; 
+
     typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; 
     typedef qd::container::Archive<phen_t, storage_t, Params> container_t; 
 
     //typedef eval::Eval<Params> eval_t; //(useful for debbuging)
     typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
  
+
+
     typedef boost::fusion::vector< 
         stat::BestFitNN<phen_t, Params>, 
         //stat::BestFit<phen_t, Params>,
@@ -152,8 +157,10 @@ int main(int argc, char **argv)
     qd.run();
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
+    
 
-    std::cout << "simple_ebn...done" << std::endl;
+    
+    std::cout << "simple example...done" << std::endl;
     return 0;
 
   }

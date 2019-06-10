@@ -79,7 +79,7 @@ using namespace sferes::gen::evo_float;
 
 struct Params {
   struct evo_float {
-    SFERES_CONST float mutation_rate = 0.5f;
+    SFERES_CONST float mutation_rate = 0.3f;
     SFERES_CONST float cross_rate = 0.1f;
     SFERES_CONST mutation_t mutation_type = polynomial;
     SFERES_CONST cross_over_t cross_over_type = sbx;
@@ -98,9 +98,9 @@ struct Params {
     SFERES_CONST size_t nb_inputs = 5; // right/left and up/down sensors
     SFERES_CONST size_t nb_outputs  = 3; //usage of each joint
     SFERES_CONST size_t min_nb_neurons  = 5;
-    SFERES_CONST size_t max_nb_neurons  = 50;
-    SFERES_CONST size_t min_nb_conns  = 30;
-    SFERES_CONST size_t max_nb_conns  = 100;
+    SFERES_CONST size_t max_nb_neurons  = 25;
+    SFERES_CONST size_t min_nb_conns  = 25;
+    SFERES_CONST size_t max_nb_conns  = 70;
     SFERES_CONST float  max_weight  = 2.0f;
     SFERES_CONST float  max_bias  = 2.0f;
 
@@ -117,7 +117,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 10; // TODO value ???
+      SFERES_CONST double l = 15; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -127,7 +127,7 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 100; // size of a batch
-      SFERES_CONST size_t nb_gen = 3001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
       SFERES_CONST size_t dump_period = 500; 
   };
 
@@ -219,7 +219,17 @@ FIT_QD(nn_mlp){
             prev_pos[2] = 0;
 
             //dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
-            dist -= 0.1*t*sqrt(square(target.array() - prev_pos.array()).sum());
+            //dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum()); //multiplication by exp(t-t_max) in order to penalize solution far from target at the end of the simulation
+
+            if (sqrt(square(target.array() - prev_pos.array()).sum()) < 0.02){
+            dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum());
+            }
+
+            else {
+            //dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+            dist -= log(1+t)*sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+            //dist -= sqrt(square(target.array() - prev_pos.array()).sum());
+          }
 
         }
         dists[s] = dist;
@@ -229,16 +239,19 @@ FIT_QD(nn_mlp){
         } 
 
         median_dist = median(dists);
-        motor_medians[0] = median(motor_usage_v0);
-        motor_medians[1] = median(motor_usage_v1);
+        motor_medians[0] = median(motor_usage_v0); //geometric median is approximated 
+        motor_medians[1] = median(motor_usage_v1); 
         motor_medians[2] = median(motor_usage_v2);
 
         double dist_metric = median_dist;
 
         this->_value = dist_metric; //negative mean cumulative distance 
 
-        std::vector<double> desc(3);
+        std::vector<double> desc(3); 
         desc = {motor_medians[0], motor_medians[1], motor_medians[2]};
+
+        //std::cout << "fitness " << dist_metric  << std::endl;
+        //std::cout << "behavior descriptor " << motor_medians[0] << "  " << motor_medians[1] << "  " << motor_medians[2] << std::endl;
 
         this->set_desc(desc); //mean usage of each motor
 
@@ -315,5 +328,5 @@ private:
   //std::uniform_real_distribution<double> distribution(-1.0,1.0);
   double _vmax = 1;
   double _delta_t = 0.1;
-  double _t_max = 15; //TMax guidé poto
+  double _t_max = 10; //TMax guidé poto
 };

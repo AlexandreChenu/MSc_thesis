@@ -105,7 +105,7 @@ def plot_arm(pos, vecs):
 	plt.plot([v_1[0],v_1[0]+v_2[0]],[v_1[1],v_1[1]+v_2[1]])
 	plt.plot([v_1[0]+v_2[0], v_1[0]+v_2[0]+v_3[0]],[v_1[1]+v_2[1],v_1[1]+v_2[1]+v_3[1]])
 
-	plt.show()
+	#plt.show()
 
 	return
 
@@ -136,7 +136,8 @@ if __name__ == '__main__':
 
 	sc = plt.scatter(pos_x, pos_y, c=np.asarray(L_fitness).reshape(len(L_fitness),1), marker = 'x')
 
-	plt.colorbar(sc)
+	clb = plt.colorbar(sc)
+	clb.set_label('Fitness')
 
 	plt.figure()
 	plt.xlim((-8,8))
@@ -152,4 +153,7 @@ if __name__ == '__main__':
 
 	sc2 = plt.scatter(pos_x2, pos_y2, c=np.asarray(L_fitness2).reshape(len(L_fitness2),1), marker = 'x')
 
-	plt.colorbar(sc2)
+	clb2 = plt.colorbar(sc2)
+	clb2.set_label('Fitness')
+
+	plt.show()

@@ -85,12 +85,16 @@ if __name__ == '__main__':
 	L_X, L_Y, target = extract_data(filename)
 
 	plt.figure()
+
+	plt.title('Fitness: Time dependant distance')
 		
 	print("Target :", target)
-	plt.scatter(L_X[0],L_Y[0],c='black')
-	plt.scatter(L_X[1:-1],L_Y[1:-1],c='r')
-	plt.scatter(L_X[-1],L_Y[-1],c='g')
-	plt.scatter(target[0],target[1],c='b')
+	plt.scatter(L_X[0],L_Y[0],c='black',label='starting point')
+	plt.scatter(L_X[1:-1],L_Y[1:-1],c='r',label='trajectory')
+	plt.scatter(L_X[-1],L_Y[-1],c='g',label='final position')
+	plt.scatter(target[0],target[1],c='b',label='target')
+
+	plt.legend()
 
 	plt.show()
 
