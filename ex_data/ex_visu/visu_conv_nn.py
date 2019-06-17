@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-filename0 = "/Users/mobby/git/ex_data/2019-05-29_18_13_07_69/bestfit.dat"
+filename0 = "/Users/mobby/git/ex_data/test_simple_log_ex/bestfit.dat"
 #filename1 = "/Users/mobby/git/ex_data/2019-05-03_14_51_59_489/bestfit.dat"
 #filename2 = "/Users/mobby/git/ex_data/2019-05-03_15_14_25_532/bestfit.dat"
 
@@ -43,7 +43,7 @@ if "__main__" == __name__:
 	#X2, Y2 = extract_data(filename2)
 
 
-	plt.plot(X0,Y0,c='r',label='5000 iterations')
+	plt.plot(X0,Y0,c='r',label='10000 iterations')
 	#plt.plot(X1,Y1,c='b',label='1000 iterations')
 	#plt.plot(X2,Y2,c='y',label='2000 iterations and higher mutation rate')
 

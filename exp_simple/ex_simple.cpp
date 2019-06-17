@@ -42,7 +42,8 @@
 #include <sferes/run.hpp>
 #include <sferes/stat/best_fit.hpp>
 
-#include "/git/sferes2/exp/exp_simple/best_fit_nn.hpp"
+//#include "/git/sferes2/exp/exp_simple/best_fit_nn.hpp"
+#include "/git/sferes2/exp/exp_simple/best_fit_it.hpp"
 
 #include <sferes/stat/qd_container.hpp>
 #include <sferes/stat/qd_selection.hpp>
@@ -124,22 +125,20 @@ int main(int argc, char **argv)
     typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
                                                                                        // TODO : change by hyper NN in order to test hyper NEAT 
     typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
-    typedef qd::selector::Uniform<phen_t, Params> select_t; //TODO : test other selector
+    //typedef qd::selector::Uniform<phen_t, Params> select_t; //TODO : test other selector
 
 
-    //typedef qd::selector::getFitness ValueSelect_t;
-    //typedef qd::selector::Tournament<phen_t, ValueSelect_t, Params> select_t; 
+    typedef qd::selector::getFitness ValueSelect_t;
+    typedef qd::selector::Tournament<phen_t, ValueSelect_t, Params> select_t; 
 
     typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; 
     typedef qd::container::Archive<phen_t, storage_t, Params> container_t; 
 
     //typedef eval::Eval<Params> eval_t; //(useful for debbuging)
     typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
- 
-
 
     typedef boost::fusion::vector< 
-        stat::BestFitNN<phen_t, Params>, 
+        stat::BestFitIt<phen_t, Params>, 
         //stat::BestFit<phen_t, Params>,
         stat::QdContainer<phen_t, Params>, 
         stat::QdProgress<phen_t, Params> 
@@ -158,7 +157,6 @@ int main(int argc, char **argv)
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
     
-
     
     std::cout << "simple example...done" << std::endl;
     return 0;

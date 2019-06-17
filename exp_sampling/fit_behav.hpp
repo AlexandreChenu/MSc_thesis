@@ -221,8 +221,8 @@ FIT_QD(nn_mlp){
             //dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
             //dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum()); //multiplication by exp(t-t_max) in order to penalize solution far from target at the end of the simulation
 
-            if (sqrt(square(target.array() - prev_pos.array()).sum()) < 0.02){
-            dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum());
+            if (sqrt(square(target.array() - prev_pos.array()).sum()) < 0.03){
+            dist -= 0.01*exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum());
             }
 
             else {

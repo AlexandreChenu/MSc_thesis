@@ -22,16 +22,18 @@ namespace sferes {
         assert(!ea.pop().empty());
         _best = *std::max_element(ea.pop().begin(), ea.pop().end(), fit::compare_max());
 
+        std::cout << "pop size: " << ea.pop().size() << std::endl;
+
         this->_create_log_file(ea, "bestfit.dat");
         if (ea.dump_enabled())
           (*this->_log_file) << ea.gen() << " " << ea.nb_evals() << " " << _best->fit().value() << std::endl;
 
         //change it to depend from params 
-        if (_cnt%Params::pop::dump_period == 0){ //save model
+        if (_cnt%Params::pop::dump_period == 0){ //save model 
 
           typedef boost::archive::binary_oarchive oa_t;
 
-          std::cout << "writing...model" << std::endl;
+          std::cout << "writing...model..." << std::endl;
           const std::string fmodel = std::string("/git/sferes2/exp/tmp/model_") + std::to_string(_cnt) + ".bin";
           {
           std::ofstream ofs(fmodel, std::ios::binary);
