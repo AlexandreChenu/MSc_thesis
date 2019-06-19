@@ -129,8 +129,8 @@ int run_simu(T & model, int t_max, std::string filename) {
 
     //target = {0.2,0.2,0.0};
     //target = {-1, 0.0, 0.0};
-    //target = {-0.211234, 0.59688,0.0};
     target = {-0.211234, 0.59688,0.0};
+    //target = {-0.211234, 0.59688,0.0};
     
     //open logfile
     logfile.open(filename);
@@ -200,7 +200,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/tmp/model_5000_1.bin";
+	const std::string filename = "/git/sferes2/exp/tmp/model_10000_1.bin";
 
 
 	std::cout << "model...loading" << std::endl;
@@ -216,7 +216,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/ex_data/log_model_5000_1.txt";
+	std::string logfile = "/git/sferes2/exp/ex_data/log_model_10000_1.txt";
 
 	run_simu(model, 10, logfile);
 

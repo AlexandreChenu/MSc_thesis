@@ -158,6 +158,7 @@ int main(int argc, char **argv)
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
     
     
+
     std::cout << "simple example...done" << std::endl;
     return 0;
 

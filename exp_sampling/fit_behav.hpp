@@ -165,7 +165,6 @@ FIT_QD(nn_mlp){
         // double sum_dist = 0;
         // double mean_dist = 0;
         // Eigen::Vector3d sum_motor_usage;
-        double dist = 0;
         double median_dist;
         std::vector<double> motor_usage_v0(Params::sample::n_samples);
         std::vector<double> motor_usage_v1(Params::sample::n_samples);
@@ -178,6 +177,7 @@ FIT_QD(nn_mlp){
         for (int s = 0; s < Params::sample::n_samples ; ++s){ //iterate through several random environements
 
           //init data
+          double dist = 0;
           robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
           for (int j = 0; j < 3 ; ++j){ 
                     motor_usage[j] = 0; //starting usage is null  

@@ -116,7 +116,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 15; // TODO value ???
+      SFERES_CONST double l = 10; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -155,6 +155,7 @@ FIT_QD(nn_mlp){
         Eigen::Vector3d robot_angles;
         Eigen::Vector3d target;
         double dist = 0;
+        double speed = 0;
 
         //std::cout << "INIT" << std::endl;
         target = {-0.211234, 0.59688,0.0};
@@ -173,6 +174,7 @@ FIT_QD(nn_mlp){
           std::vector<float> inputs(5);
 
           Eigen::Vector3d prev_pos; //compute previous position
+          Eigen::Vector3d new_pos;
 
           prev_pos = forward_model(robot_angles);
 
@@ -196,20 +198,25 @@ FIT_QD(nn_mlp){
             motor_usage[indx] += output[indx]; //Compute motor usage
           }
 
-          prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
+          new_pos = forward_model(robot_angles);
+
+          speed = sqrt(square(prev_pos.array() - new_pos.array()).sum())/_delta_t; //compute gripper's speed at each timestep
+
+          //std::cout << "speed: " << speed << std::endl;
 
           target[2] = 0; //get rid of z coordinate
-          prev_pos[2] = 0;
+          new_pos[2] = 0;
 
-          if (sqrt(square(target.array() - prev_pos.array()).sum()) < 0.03){
+          if (sqrt(square(target.array() - new_pos.array()).sum()) < 0.01){
             //dist -= 0.1*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - prev_pos.array()).sum())/dist_max);
-            dist -= 0.01*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - prev_pos.array()).sum()));
+            //dist -= 0.01*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - new_pos.array()).sum()));
+            dist -= 0.01*speed;
           }
 
           else {
           //dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
             //dist -= (log(1+t)/log(1+_t_max/_delta_t))*(sqrt(square(target.array() - prev_pos.array()).sum())/dist_max); //cumulative squared distance between griper and target
-            dist -= log(1+t)*(sqrt(square(target.array() - prev_pos.array()).sum()));
+            dist -= log(1+t)*(sqrt(square(target.array() - new_pos.array()).sum()));
           //dist -= sqrt(square(target.array() - prev_pos.array()).sum());
           }
         }
