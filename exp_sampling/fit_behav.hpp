@@ -117,7 +117,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 15; // TODO value ???
+      SFERES_CONST double l = 0.1; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -162,6 +162,7 @@ FIT_QD(nn_mlp){
         Eigen::Vector3d robot_angles;
         Eigen::Vector3d target;
         std::vector<double> dists(Params::sample::n_samples);
+
         // double sum_dist = 0;
         // double mean_dist = 0;
         // Eigen::Vector3d sum_motor_usage;
@@ -178,6 +179,10 @@ FIT_QD(nn_mlp){
 
           //init data
           double dist = 0;
+          double speed = 0;
+          double desc1, desc2, desc3;
+          double tot_mot_usage = 0;
+
           robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
           for (int j = 0; j < 3 ; ++j){ 
                     motor_usage[j] = 0; //starting usage is null  
@@ -191,6 +196,7 @@ FIT_QD(nn_mlp){
           for (int t=0; t< _t_max/_delta_t; ++t){ //iterate through time
 
             Eigen::Vector3d prev_pos; //compute previous position
+            Eigen::Vector3d new_pos;
             prev_pos = forward_model(robot_angles);
 
             inputs[0] = target[0] - prev_pos[0]; //get side distance to target (-2 < input < 2)
@@ -213,29 +219,37 @@ FIT_QD(nn_mlp){
               //motor_usage[indx] += abs(output[indx]); //Compute motor usage
               motor_usage[indx] += output[indx]; //Compute motor usage
             }
-            prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
+            new_pos = forward_model(robot_angles);
 
-            target[2] = 0; //get rid of z coordinates
-            prev_pos[2] = 0;
+            speed = sqrt(square(prev_pos.array() - new_pos.array()).sum())/_delta_t; //compute gripper's speed at each timestep
 
-            //dist -= sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
-            //dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum()); //multiplication by exp(t-t_max) in order to penalize solution far from target at the end of the simulation
+            target[2] = 0; //get rid of z coordinate
+            new_pos[2] = 0;
 
-            if (sqrt(square(target.array() - prev_pos.array()).sum()) < 0.03){
-            dist -= 0.01*exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum());
+            if (sqrt(square(target.array() - new_pos.array()).sum()) < 0.01){
+              //dist -= 0.1*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - prev_pos.array()).sum())/dist_max);
+              //dist -= 0.01*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - new_pos.array()).sum()));
+              dist -= speed*sqrt(square(target.array() - new_pos.array()).sum());
             }
 
             else {
             //dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
-            dist -= log(1+t)*sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
+              //dist -= (log(1+t)/log(1+_t_max/_delta_t))*(sqrt(square(target.array() - prev_pos.array()).sum())/dist_max); //cumulative squared distance between griper and target
+              dist -= log(1+t)*(sqrt(square(target.array() - new_pos.array()).sum()));
             //dist -= sqrt(square(target.array() - prev_pos.array()).sum());
           }
 
         }
         dists[s] = dist;
-        motor_usage_v0[s] = motor_usage[0]; //TODO: Generalize to n arms
-        motor_usage_v1[s] = motor_usage[1];
-        motor_usage_v2[s] = motor_usage[2];
+
+        tot_mot_usage = motor_usage[0] + motor_usage[1] + motor_usage[2];
+        desc1 = motor_usage[0]/tot_mot_usage;
+        desc2 = motor_usage[1]/tot_mot_usage;
+        desc3 = motor_usage[2]/tot_mot_usage;
+
+        motor_usage_v0[s] = desc1; //TODO: Generalize to n arms
+        motor_usage_v1[s] = desc2;
+        motor_usage_v2[s] = desc3;
         } 
 
         median_dist = median(dists);

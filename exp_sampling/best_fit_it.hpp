@@ -11,7 +11,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 
-#include "/git/sferes2/exp/exp_simple/fit_behav.hpp"
+#include "/git/sferes2/exp/exp_sampling/fit_behav.hpp"
 
 namespace sferes {
   namespace stat {

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.colors
 
-filename = "/Users/mobby/git/ex_data/test_sample_10k_gen/archive_10000.dat"
+filename = "/Users/mobby/git/ex_data/test_new_fit_bd/archive_10000.dat"
 
 def extract_data(filename):
 
