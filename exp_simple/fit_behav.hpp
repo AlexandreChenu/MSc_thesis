@@ -116,7 +116,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 10; // TODO value ???
+      SFERES_CONST double l = 0.1; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -156,9 +156,13 @@ FIT_QD(nn_mlp){
         Eigen::Vector3d target;
         double dist = 0;
         double speed = 0;
+        double desc1, desc2, desc3;
+        double tot_mot_usage = 0;
 
         //std::cout << "INIT" << std::endl;
-        target = {-0.211234, 0.59688,0.0};
+        //target = {-0.211234, 0.59688,0.0};
+        target = {0.2, 0.2, 0.0};
+
         robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
         Eigen::Vector3d pos_init = forward_model(robot_angles);
         
@@ -195,14 +199,12 @@ FIT_QD(nn_mlp){
           for (int indx = 0; indx < 3; ++indx){
             output[indx] = 2*(ind.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
             robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
-            motor_usage[indx] += output[indx]; //Compute motor usage
+            motor_usage[indx] += abs(output[indx]); //Compute motor usage
           }
 
           new_pos = forward_model(robot_angles);
 
           speed = sqrt(square(prev_pos.array() - new_pos.array()).sum())/_delta_t; //compute gripper's speed at each timestep
-
-          //std::cout << "speed: " << speed << std::endl;
 
           target[2] = 0; //get rid of z coordinate
           new_pos[2] = 0;
@@ -210,7 +212,7 @@ FIT_QD(nn_mlp){
           if (sqrt(square(target.array() - new_pos.array()).sum()) < 0.01){
             //dist -= 0.1*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - prev_pos.array()).sum())/dist_max);
             //dist -= 0.01*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - new_pos.array()).sum()));
-            dist -= 0.01*speed;
+            dist -= speed*sqrt(square(target.array() - new_pos.array()).sum());
           }
 
           else {
@@ -223,8 +225,13 @@ FIT_QD(nn_mlp){
 
         this->_value = dist; //cumulative distance during the experiment
 
+        tot_mot_usage = motor_usage[0] + motor_usage[1] + motor_usage[2];
+
         std::vector<double> desc(3);
-        desc = {motor_usage[0], motor_usage[1], motor_usage[2]};
+        desc1 = motor_usage[0]/tot_mot_usage;
+        desc2 = motor_usage[1]/tot_mot_usage;
+        desc3 = motor_usage[2]/tot_mot_usage;
+        desc = {desc1, desc2, desc3};
 
         this->set_desc(desc); //Which behavior descriptor? The three motors angles 
       }

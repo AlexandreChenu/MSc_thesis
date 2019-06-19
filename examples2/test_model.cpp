@@ -127,9 +127,9 @@ int run_simu(T & model, int t_max, std::string filename) {
     target[1] = radius*sin(theta);
     target[2] = 0;
 
-    //target = {0.2,0.2,0.0};
+    target = {0.2,0.2,0.0};
     //target = {-1, 0.0, 0.0};
-    target = {-0.211234, 0.59688,0.0};
+    //target = {-0.211234, 0.59688,0.0};
     //target = {-0.211234, 0.59688,0.0};
     
     //open logfile
