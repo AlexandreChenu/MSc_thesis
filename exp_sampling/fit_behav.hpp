@@ -217,7 +217,7 @@ FIT_QD(nn_mlp){
               output[indx] = 2*(ind.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
               robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
               //motor_usage[indx] += abs(output[indx]); //Compute motor usage
-              motor_usage[indx] += output[indx]; //Compute motor usage
+              motor_usage[indx] += abs(output[indx]); //Compute motor usage
             }
             new_pos = forward_model(robot_angles);
 
