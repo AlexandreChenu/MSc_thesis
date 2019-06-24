@@ -42,6 +42,7 @@
 #include <sferes/run.hpp>
 #include <sferes/stat/best_fit.hpp>
 
+
 //#include "/git/sferes2/exp/exp_simple/best_fit_nn.hpp"
 #include "/git/sferes2/exp/exp_simple/best_fit_it.hpp"
 
@@ -114,6 +115,7 @@ int main(int argc, char **argv)
     using namespace sferes;
     using namespace nn;
 
+
     std::cout << "start...simple example" <<std::endl;
 
     typedef nn_mlp<Params> fit_t; 
@@ -136,7 +138,7 @@ int main(int argc, char **argv)
 
     //typedef eval::Eval<Params> eval_t; //(useful for debbuging)
     typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
-
+    
     typedef boost::fusion::vector< 
         stat::BestFitIt<phen_t, Params>, 
         //stat::BestFit<phen_t, Params>,
@@ -160,5 +162,4 @@ int main(int argc, char **argv)
 
     std::cout << "simple example...done" << std::endl;
     return 0;
-
   }

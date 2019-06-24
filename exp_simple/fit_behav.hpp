@@ -116,7 +116,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 0.1; // TODO value ???
+      SFERES_CONST double l = 0.02; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -126,7 +126,7 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 100; // size of a batch
-      SFERES_CONST size_t nb_gen = 10001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t nb_gen = 20001; // nbr de gen pour laquelle l'algo va tourner 
       SFERES_CONST size_t dump_period = 500; 
   };
 
@@ -156,13 +156,11 @@ FIT_QD(nn_mlp){
         Eigen::Vector3d target;
         double dist = 0;
         double speed = 0;
-        double desc1, desc2, desc3;
-        double tot_mot_usage = 0;
+	double tot_mot_use = 0;
+	double desc1, desc2, desc3;
 
         //std::cout << "INIT" << std::endl;
-        //target = {-0.211234, 0.59688,0.0};
-        target = {0.2, 0.2, 0.0};
-
+        target = {-0.211234, 0.59688,0.0};
         robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
         Eigen::Vector3d pos_init = forward_model(robot_angles);
         
@@ -205,6 +203,7 @@ FIT_QD(nn_mlp){
           new_pos = forward_model(robot_angles);
 
           speed = sqrt(square(prev_pos.array() - new_pos.array()).sum())/_delta_t; //compute gripper's speed at each timestep
+          //std::cout << "speed: " << speed << std::endl;
 
           target[2] = 0; //get rid of z coordinate
           new_pos[2] = 0;
@@ -212,28 +211,33 @@ FIT_QD(nn_mlp){
           if (sqrt(square(target.array() - new_pos.array()).sum()) < 0.01){
             //dist -= 0.1*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - prev_pos.array()).sum())/dist_max);
             //dist -= 0.01*exp(t-_t_max/_delta_t)*(sqrt(square(target.array() - new_pos.array()).sum()));
-            dist -= speed*sqrt(square(target.array() - new_pos.array()).sum());
-          }
+            //dist -= 0.1*speed*sqrt(square(target.array() - new_pos.array()).sum());
+            dist -= sqrt(square(target.array() - new_pos.array()).sum());
+	  }
+
 
           else {
           //dist -= exp(t-_t_max/_delta_t)*sqrt(square(target.array() - prev_pos.array()).sum()); //cumulative squared distance between griper and target
             //dist -= (log(1+t)/log(1+_t_max/_delta_t))*(sqrt(square(target.array() - prev_pos.array()).sum())/dist_max); //cumulative squared distance between griper and target
-            dist -= log(1+t)*(sqrt(square(target.array() - new_pos.array()).sum()));
+            dist -= (log(1+t)) + (sqrt(square(target.array() - new_pos.array()).sum()));
           //dist -= sqrt(square(target.array() - prev_pos.array()).sum());
           }
         }
-
+	//std::cout << "end of eval" << std::endl;
         this->_value = dist; //cumulative distance during the experiment
+	
+	tot_mot_use = motor_usage[0] + motor_usage[1] + motor_usage[2];
+        //tot_mot_use = _t_max*_delta_t*_vmax;
+	std::vector<double> desc(3);
 
-        tot_mot_usage = motor_usage[0] + motor_usage[1] + motor_usage[2];
+	desc1 = motor_usage[0]/tot_mot_use;
+	desc2 = motor_usage[1]/tot_mot_use;
+	desc3 = motor_usage[2]/tot_mot_use;
+	
+	//desc = {motor_usage[0], motor_usage[1], motor_usage[2]};
+	desc = {desc1, desc2, desc3};
 
-        std::vector<double> desc(3);
-        desc1 = motor_usage[0]/tot_mot_usage;
-        desc2 = motor_usage[1]/tot_mot_usage;
-        desc3 = motor_usage[2]/tot_mot_usage;
-        desc = {desc1, desc2, desc3};
-
-        this->set_desc(desc); //Which behavior descriptor? The three motors angles 
+        this->set_desc(desc); //Which behavior descriptor? The three motors angles
       }
 
   Eigen::Vector3d forward_model(Eigen::VectorXd a){
