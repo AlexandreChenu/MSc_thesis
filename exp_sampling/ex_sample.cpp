@@ -61,8 +61,6 @@
 #include <sferes/qd/selector/population_based.hpp>
 #include <sferes/qd/selector/value_selector.hpp>
 
-
-
 #include <boost/test/unit_test.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -117,6 +115,7 @@ int main(int argc, char **argv)
 
     std::cout << "start exp_sample" <<std::endl;
 
+
     typedef nn_mlp<Params> fit_t; 
 
     typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;
@@ -156,7 +155,6 @@ int main(int argc, char **argv)
     qd.run();
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
-
 
     std::cout << "exp_sample...done" << std::endl;
     return 0;
