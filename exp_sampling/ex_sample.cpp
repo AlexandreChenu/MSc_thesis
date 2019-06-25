@@ -152,6 +152,7 @@ int main(int argc, char **argv)
     qd_t qd;
     //run_ea(argc, argv, qd); 
 
+
     qd.run();
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
