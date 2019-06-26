@@ -133,8 +133,8 @@ int main(int argc, char **argv)
     typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; 
     typedef qd::container::Archive<phen_t, storage_t, Params> container_t; 
 
-    //typedef eval::Eval<Params> eval_t; //(useful for debbuging)
-    typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
+    typedef eval::Eval<Params> eval_t; //(useful for debbuging)
+    //typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
  
     typedef boost::fusion::vector< 
         stat::BestFitIt<phen_t, Params>, 
@@ -151,7 +151,6 @@ int main(int argc, char **argv)
 
     qd_t qd;
     //run_ea(argc, argv, qd); 
-
 
     qd.run();
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
