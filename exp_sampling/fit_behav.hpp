@@ -201,11 +201,11 @@ FIT_QD(nn_mlp){
 
           double output;
           samples_stream >> output;
-          std::cout << "output: " << output  << std::endl;
+          //std::cout << "output: " << output  << std::endl;
           target[0] = output;
 
           samples_stream >> output; 
-          std::cout << "output: " << output  << std::endl;
+          //std::cout << "output: " << output  << std::endl;
           target[1] = output;
 
           std::vector<float> inputs(5);//TODO : what input do we use for our Neural network?

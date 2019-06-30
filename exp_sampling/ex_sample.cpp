@@ -144,6 +144,7 @@ int main(int argc, char **argv)
         >
         stat_t; 
 
+
     typedef modif::Dummy<> modifier_t; //place holder
     
     typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t; 

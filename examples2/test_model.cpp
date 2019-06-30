@@ -96,6 +96,84 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
     return v.head(3);
  }
 
+ std::vector<double> get_zone(Eigen::Vector3d start, Eigen::Vector3d target, Eigen::Vector3d pos){
+    
+    //std::cout << "start" << std::endl;
+    
+    std::vector<double> desc_add (3);
+    
+    Eigen::Vector3d middle;
+    middle[0] = (start[0]+target[0])/2;
+    middle[1] = (start[1]+target[1])/2;
+    middle[2] = 0;
+    
+    //std::cout << "test uni 0, middle x: " << middle[0] << " y: " << middle[1] << std::endl;
+    
+    std::vector<double> distances (3);
+    distances = {0,0,0};
+    
+    distances[0] = sqrt(square(start.array() - pos.array()).sum()); //R1 (cf sketch on page 3)
+    distances[1] = sqrt(square(target.array() - pos.array()).sum()); //R2
+    distances[2] = sqrt(square(middle.array() - pos.array()).sum()); //d
+    
+    double D;
+    D = *std::min_element(distances.begin(), distances.end()); //get minimal distance
+    
+    //std::cout << "test uni 1, R1 = " << distances[0] << " R2 = " << distances[1] << " d = " << distances[2] << std::endl;
+    
+    //std::cout << "what is D? " << D << std::endl;
+    
+    Eigen::Vector3d vO2_M_R0; //vector 02M in frame R0; (cf sketch on page 4)
+    vO2_M_R0[0] = pos[0] - start[0];
+    vO2_M_R0[1] = pos[1] - start[1];
+    vO2_M_R0[2] = 1;
+    
+    Eigen::Matrix3d T; //translation matrix
+    T << 1,0,-start[0],0,1,-start[1],0,0,1; //translation matrix
+    
+    Eigen::Vector3d vO2_T;
+    vO2_T[0] = target[0] - start[0];
+    vO2_T[1] = target[1] - start[1];
+    vO2_T[2] = 1;
+    
+    double theta = acos((vO2_T[1])/sqrt(vO2_T[0]*vO2_T[0] + vO2_T[1]*vO2_T[1]));
+    
+    //std::cout << "test uni 2, theta = " << theta << std::endl;
+    
+    Eigen::Matrix3d R;
+    R << cos(theta), sin(theta), 0, -sin(theta), cos(theta), 0, 0, 0, 1; //rotation matrix
+    
+    Eigen::Vector3d vO2_M_R1; //vector 02M in frame R1;
+    vO2_M_R1 = R*T*vO2_M_R0;
+    
+    //std::cout << "test uni 3, after changing frames, x = " << vO2_M_R1[0] << " y = " << vO2_M_R1[1] << std::endl;
+    
+    if (vO2_M_R1[0] < 0){ //negative zone (cf sketch on page 3)
+        if (D < 0.2) {
+            return {-1, 0, 0};
+        }
+        if (D >= 0.2 && D < 0.4){
+            return {0, -1, 0};
+        }
+        else {
+            return {0,0,-1};
+        }
+    }
+    
+    else{ //positive zone
+        if (D < 0.2) {
+            return {1, 0, 0};
+        }
+        if (D >= 0.2 && D < 0.4){
+            return {0, 1, 0};
+        }
+        else {
+            return {0,0,1};
+        }
+    }
+
+}
+
 template <typename T>
 int run_simu(T & model, int t_max, std::string filename) { 
 
@@ -111,6 +189,10 @@ int run_simu(T & model, int t_max, std::string filename) {
 
     Eigen::Vector3d prev_pos; //compute previous position
     Eigen::Vector3d output;
+    Eigen::Vector3d pos_init;
+
+    std::vector<double> zone_exp(3);
+    std::vector<double> res(3);
 
     robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
     //target = {0.5, 0.5, 0.0};
@@ -120,16 +202,16 @@ int run_simu(T & model, int t_max, std::string filename) {
     double radius;
     double theta;
 
-    radius = ((double) rand() / (RAND_MAX));
-    theta = 2*M_PI*((double) rand() / (RAND_MAX)-0.5);
+    //radius = ((double) rand() / (RAND_MAX));
+    //theta = 2*M_PI*((double) rand() / (RAND_MAX)-0.5);
 
-    target[0] = radius*cos(theta);
-    target[1] = radius*sin(theta);
-    target[2] = 0;
+    //target[0] = radius*cos(theta);
+    //target[1] = radius*sin(theta);
+    //target[2] = 0;
 
-    target = {0.2,0.2,0.0};
+    //target = {-0.2,-0.2,0.0};
     //target = {-1, 0.0, 0.0};
-    //target = {-0.211234, 0.59688,0.0};
+    target = {-0.211234, 0.59688,0.0};
     //target = {-0.211234, 0.59688,0.0};
     
     //open logfile
@@ -137,6 +219,7 @@ int run_simu(T & model, int t_max, std::string filename) {
 
     //get gripper's position
     prev_pos = forward_model(robot_angles);
+    pos_init = forward_model(robot_angles);
 
     std::vector<float> inputs(5);
     //std::vector<float> inputs(2);
@@ -171,6 +254,11 @@ int run_simu(T & model, int t_max, std::string filename) {
           //Eigen::Vector3d new_pos;
           prev_pos = forward_model(robot_angles); //remplacer pour ne pas l'appeler deux fois
 
+          res = get_zone(pos_init, target, prev_pos);
+          zone_exp[0] = zone_exp[0] + res[0];
+          zone_exp[1] = zone_exp[1] + res[1];
+          zone_exp[2] = zone_exp[2] + res[2];
+
           //write data into logfile
           logfile << robot_angles[0] << "    " << robot_angles[1] << "    " << robot_angles[2] << "    ";
           logfile << prev_pos[0] << "    " << prev_pos[1] << "    ";
@@ -178,6 +266,8 @@ int run_simu(T & model, int t_max, std::string filename) {
 
         }
     logfile.close();
+
+    std::cout << "test unitaire - bd: zone 1: " << zone_exp[0] << " zone 2: " << zone_exp[1] << " zone 3: " << zone_exp[2] << std::endl;
 
     return 0;
 }
@@ -200,7 +290,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/tmp/model_10000_1.bin";
+	const std::string filename = "/git/sferes2/exp/tmp/model_10000_2.bin";
 
 
 	std::cout << "model...loading" << std::endl;
@@ -216,7 +306,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/ex_data/log_model_10000_1.txt";
+	std::string logfile = "/git/sferes2/exp/ex_data/test_fix_imple/log_model_10000_2.txt";
 
 	run_simu(model, 10, logfile);
 

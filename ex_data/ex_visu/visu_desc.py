@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.colors
 
-filename = "/Users/mobby/git/ex_data/test_new_fit_bd/archive_10000.dat"
+filename = "/Users/mobby/git/ex_data/test_fix_imple/archive_10000.dat"
 
 def extract_data(filename):
 
@@ -50,9 +50,9 @@ if __name__ == '__main__':
 
 	X,Y,Z,fit = extract_data(filename)
 
-	ax.set_xlabel('1st motor')
-	ax.set_ylabel('2nd motor')
-	ax.set_zlabel('3rd motor')
+	ax.set_xlabel('zone 1')
+	ax.set_ylabel('zone 2')
+	ax.set_zlabel('zone 3')
 
 	sc = ax.scatter(X,Y,Z,c=np.asarray(fit).reshape(len(fit),), marker = 'x')
 	plt.colorbar(sc)
