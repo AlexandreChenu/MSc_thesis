@@ -118,7 +118,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 0.05; // TODO value ???
+      SFERES_CONST double l = 0.1; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -128,7 +128,7 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 100; // size of a batch
-      SFERES_CONST size_t nb_gen = 20001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t nb_gen = 1001; // nbr de gen pour laquelle l'algo va tourner 
       SFERES_CONST size_t dump_period = 500; 
   };
 
@@ -172,7 +172,7 @@ FIT_QD(nn_mlp){
         //std::vector<double> zone1_exp(Params::sample::n_samples);
         //std::vector<double> zone2_exp(Params::sample::n_samples);
         //std::vector<double> zone3_exp(Params::sample::n_samples);
-        Eigen::MatrixXd zone_exp(Params::sample::n_samples, 3);
+        Eigen::MatrixXd zones_exp(Params::sample::n_samples, 3);
         std::vector<double> bd_medians(3);
 
         Eigen::MatrixXd samples(Params::sample::n_samples,2); //init samples with cluster sampling 
@@ -256,20 +256,20 @@ FIT_QD(nn_mlp){
           fits[s] = dist/500; // -> 0
         }
 
-        zone_exp(s,0) = zone_exp[0]/(_t_max/_delta_t); //TODO: Generalize to n arms
-        zone_exp(s,1) = zone_exp[1]/(_t_max/_delta_t);
-        zone_exp(s,2) = zone_exp[2]/(_t_max/_delta_t);
+        zones_exp(s,0) = zone_exp[0]/(_t_max/_delta_t); //TODO: Generalize to n arms
+        zones_exp(s,1) = zone_exp[1]/(_t_max/_delta_t);
+        zones_exp(s,2) = zone_exp[2]/(_t_max/_delta_t);
         } //end for all samples 
 
         samples_stream.close(); //close file
 
         fit_median = median(fits);
 
-        int index = geometric_median(zone_exp);
+        int index = geometric_median(zones_exp);
 
-        bd_medians[0] = zone_exp(index,0); //geometric median is approximated 
-        bd_medians[1] = zone_exp(index,1); 
-        bd_medians[2] = zone_exp(index,2);
+        bd_medians[0] = zones_exp(index,0); //geometric median is approximated 
+        bd_medians[1] = zones_exp(index,1); 
+        bd_medians[2] = zones_exp(index,2);
 
         this->_value = fit_median; //negative mean cumulative distance 
 
@@ -425,20 +425,20 @@ std::vector<double> get_zone(Eigen::Vector3d start, Eigen::Vector3d target, Eige
 
 double geometric_median (Eigen::MatrixXd samples){
     
-    int n_samples = 4;
+    int n_samples = Params::sample::n_samples;
     //int dim = 3;
     Eigen::MatrixXd distances(n_samples,n_samples);
     std::vector<double> sum_dists(n_samples);
     
     for (int i=0; i<n_samples; i++){ //get all distances
-        std::cout << "debug i: " << i << std::endl;
+        //std::cout << "debug i: " << i << std::endl;
         for (int j = i; j < n_samples; j++){
-            std::cout << "debug j: " << j << std::endl;
+            //std::cout << "debug j: " << j << std::endl;
             distances(i,j) = sqrt((samples(i,0)-samples(j,0))*(samples(i,0)-samples(j,0)) + (samples(i,1)-samples(j,1))*(samples(i,1)-samples(j,1)) +(samples(i,2)-samples(j,2))*(samples(i,2)-samples(j,2)));
-            std::cout << "debug distance: " << distances(i,j) << std::endl;
+            //std::cout << "debug distance: " << distances(i,j) << std::endl;
             distances(j,i) = distances(i,j);}
     }
-    std::cout << "out distances: " << distances << std::endl;
+    //std::cout << "out distances: " << distances << std::endl;
     
     for (int row=0; row<n_samples; row++){ //compute sum of distances
         double sum =0;
@@ -447,7 +447,7 @@ double geometric_median (Eigen::MatrixXd samples){
         }
         sum_dists[row] = sum;
     }
-    std::cout << "out sum distances: " << sum_dists[0] << " " << sum_dists[1] << " " << sum_dists[2] << " " << sum_dists[3] << std::endl;
+    //std::cout << "out sum distances: " << sum_dists[0] << " " << sum_dists[1] << " " << sum_dists[2] << " " << sum_dists[3] << std::endl;
     
     double min_sample;
     min_sample = *std::min_element(sum_dists.begin(), sum_dists.end()); //get minimal distance
@@ -456,7 +456,7 @@ double geometric_median (Eigen::MatrixXd samples){
     while(sum_dists[ind] != min_sample){
         ind+=1;
     }
-    std::cout << "indice: " << ind << std::endl;
+    //std::cout << "indice: " << ind << std::endl;
     
     return ind;
 }
