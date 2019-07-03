@@ -194,10 +194,15 @@ FIT_QD(nn_mlp){
           robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
           Eigen::Vector3d pos_init = forward_model(robot_angles); //initial position
 
+          for (int i = 0; i < 3; ++i)
+            zone_exp[i] = 0;
+
           double output;
           samples_stream >> output; //sample reading has been tested
+          std::cout << "target x: " << output << std::endl;
           target[0] = output;
           samples_stream >> output; 
+          std::cout << "target y: " << output << std::endl;
           target[1] = output;
 
           std::vector<float> inputs(5);//TODO : what input do we use for our Neural network?
