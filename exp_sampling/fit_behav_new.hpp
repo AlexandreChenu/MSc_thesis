@@ -118,7 +118,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 0.1; // TODO value ???
+      SFERES_CONST double l = 0.2; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -128,7 +128,7 @@ struct Params {
       // number of initial random points
       SFERES_CONST size_t init_size = 100; // nombre d'individus générés aléatoirement 
       SFERES_CONST size_t size = 100; // size of a batch
-      SFERES_CONST size_t nb_gen = 1001; // nbr de gen pour laquelle l'algo va tourner 
+      SFERES_CONST size_t nb_gen = 20001; // nbr de gen pour laquelle l'algo va tourner 
       SFERES_CONST size_t dump_period = 500; 
   };
 
@@ -141,7 +141,7 @@ struct Params {
 
   struct sample {
 
-      SFERES_CONST size_t n_samples = 3; //nombre d'environements aléatoirement générés
+      SFERES_CONST size_t n_samples = 5; //nombre d'environements aléatoirement générés
       //Eigen::MatrixXd samples = cluster_sampling(100);
   };
 };

@@ -107,14 +107,12 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
  }
 
 
-
 int main(int argc, char **argv) 
 {   
     using namespace sferes;
     using namespace nn;
 
     std::cout << "start exp_sample" <<std::endl;
-
 
     typedef nn_mlp<Params> fit_t; 
 
