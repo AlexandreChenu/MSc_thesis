@@ -96,18 +96,15 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
     return v.head(3);
  }
 
- std::vector<double> get_zone(Eigen::Vector3d start, Eigen::Vector3d target, Eigen::Vector3d pos){
+std::vector<double> get_zone(Eigen::Vector3d start, Eigen::Vector3d target, Eigen::Vector3d pos){
     
-    //std::cout << "start" << std::endl;
     
     std::vector<double> desc_add (3);
     
     Eigen::Vector3d middle;
     middle[0] = (start[0]+target[0])/2;
     middle[1] = (start[1]+target[1])/2;
-    middle[2] = 0;
-    
-    //std::cout << "test uni 0, middle x: " << middle[0] << " y: " << middle[1] << std::endl;
+    middle[2] = 1;
     
     std::vector<double> distances (3);
     distances = {0,0,0};
@@ -119,13 +116,11 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
     double D;
     D = *std::min_element(distances.begin(), distances.end()); //get minimal distance
     
-    //std::cout << "test uni 1, R1 = " << distances[0] << " R2 = " << distances[1] << " d = " << distances[2] << std::endl;
-    
-    //std::cout << "what is D? " << D << std::endl;
-    
     Eigen::Vector3d vO2_M_R0; //vector 02M in frame R0; (cf sketch on page 4)
-    vO2_M_R0[0] = pos[0] - start[0];
-    vO2_M_R0[1] = pos[1] - start[1];
+    //vO2_M_R0[0] = pos[0] - start[0];
+    vO2_M_R0[0] = pos[0];
+    //vO2_M_R0[1] = pos[1] - start[1];
+    vO2_M_R0[1] = pos[1];
     vO2_M_R0[2] = 1;
     
     Eigen::Matrix3d T; //translation matrix
@@ -135,18 +130,23 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
     vO2_T[0] = target[0] - start[0];
     vO2_T[1] = target[1] - start[1];
     vO2_T[2] = 1;
+
+    double theta = atan2(vO2_T[1], vO2_T[0]) - atan2(1, 0);
     
-    double theta = acos((vO2_T[1])/sqrt(vO2_T[0]*vO2_T[0] + vO2_T[1]*vO2_T[1]));
-    
-    //std::cout << "test uni 2, theta = " << theta << std::endl;
+    if (theta > M_PI){
+        theta -= 2*M_PI;
+    }
+    else if (theta <= -M_PI){
+        theta += 2*M_PI;
+    }
     
     Eigen::Matrix3d R;
     R << cos(theta), sin(theta), 0, -sin(theta), cos(theta), 0, 0, 0, 1; //rotation matrix
     
     Eigen::Vector3d vO2_M_R1; //vector 02M in frame R1;
-    vO2_M_R1 = R*T*vO2_M_R0;
+    vO2_M_R1 = T*vO2_M_R0;  
+    vO2_M_R1 = R*vO2_M_R1;
     
-    //std::cout << "test uni 3, after changing frames, x = " << vO2_M_R1[0] << " y = " << vO2_M_R1[1] << std::endl;
     
     if (vO2_M_R1[0] < 0){ //negative zone (cf sketch on page 3)
         if (D < 0.2) {
@@ -171,7 +171,6 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
             return {0,0,1};
         }
     }
-
 }
 
 template <typename T>
@@ -195,9 +194,6 @@ int run_simu(T & model, int t_max, std::string filename) {
     std::vector<double> res(3);
 
     robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
-    //target = {0.5, 0.5, 0.0};
-
-    //target = {-0.2, -0.2, 0.0};
 
     double radius;
     double theta;
@@ -211,8 +207,12 @@ int run_simu(T & model, int t_max, std::string filename) {
 
     //target = {-0.2,-0.2,0.0};
     //target = {-1, 0.0, 0.0};
-    target = {-0.211234, 0.59688,0.0};
     //target = {-0.211234, 0.59688,0.0};
+    target = {-0.2, 0.65,0.0};
+    //target = {-0.0523658, -0.0159459,0.0};
+    //target = {0.0, -0.5, 0.0};
+    //target = {0.0, 0.5, 0.0};
+    //target = {0.173819, -0.156174, 0.0};
     
     //open logfile
     logfile.open(filename);
@@ -290,7 +290,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/tmp/model_10000_2.bin";
+	const std::string filename = "/git/sferes2/exp/ex_data/test_final_simple/model_10000.bin";
 
 
 	std::cout << "model...loading" << std::endl;
@@ -306,7 +306,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/ex_data/test_fix_imple/log_model_10000_2.txt";
+	std::string logfile = "/git/sferes2/exp/ex_data/test_final_simple/log_model_10000_noisy_y.txt";
 
 	run_simu(model, 10, logfile);
 
