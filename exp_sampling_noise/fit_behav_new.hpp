@@ -141,7 +141,7 @@ struct Params {
 
   struct sample {
 
-      SFERES_CONST size_t n_samples = 10; //nombre d'environements aléatoirement générés
+      SFERES_CONST size_t n_samples = 100; //nombre d'environements aléatoirement générés
       //Eigen::MatrixXd samples = cluster_sampling(100);
   };
 };
@@ -181,7 +181,7 @@ FIT_QD(nn_mlp){
         //samples = cluster_sampling(Params::sample::n_samples); // CHANGE THIS TO NON-STOCHASTIC INITIALISATION
 
         std::ifstream samples_stream;
-        samples_stream.open("/git/sferes2/exp/exp_sampling_noise/samples.txt");
+        samples_stream.open("/git/sferes2/exp/exp_sampling_noise/samples_out.txt");
 
         if (!samples_stream) {
           std::cout << "Unable to open file datafile.txt";
