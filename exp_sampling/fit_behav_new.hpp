@@ -118,7 +118,7 @@ struct Params {
 
     struct nov {
       SFERES_CONST size_t deep = 2;
-      SFERES_CONST double l = 0.2; // TODO value ???
+      SFERES_CONST double l = 0.08; // TODO value ???
       SFERES_CONST double k = 25; // TODO right value?
       SFERES_CONST double eps = 0.1;// TODO right value??
   };
@@ -141,7 +141,7 @@ struct Params {
 
   struct sample {
 
-      SFERES_CONST size_t n_samples = 10; //nombre d'environements aléatoirement générés
+      SFERES_CONST size_t n_samples = 50; //nombre d'environements aléatoirement générés
       //Eigen::MatrixXd samples = cluster_sampling(100);
   };
 };
@@ -194,15 +194,13 @@ FIT_QD(nn_mlp){
           robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
           Eigen::Vector3d pos_init = forward_model(robot_angles); //initial position
 
-          for (int i = 0; i < 3; ++i)
-            zone_exp[i] = 0;
-
-          double output;
+	  for (int i=0; i< 3; i++)
+		zone_exp[i] = 0;
+           
+	  double output;
           samples_stream >> output; //sample reading has been tested
-          std::cout << "target x: " << output << std::endl;
           target[0] = output;
           samples_stream >> output; 
-          std::cout << "target y: " << output << std::endl;
           target[1] = output;
 
           std::vector<float> inputs(5);//TODO : what input do we use for our Neural network?
@@ -282,7 +280,6 @@ FIT_QD(nn_mlp){
         desc = {bd_medians[0], bd_medians[1], bd_medians[2]};
 
         this->set_desc(desc); //mean usage of each motor
-
       }
 
   double median(std::vector<double> &v)
