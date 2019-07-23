@@ -119,7 +119,7 @@ int main(int argc, char **argv)
     typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;
     typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
     typedef PfWSum<weight_t> pf_t;
-    typedef AfSigmoidBias<bias_t> af_t;
+    typedef AfSigmoidNoBias<> af_t;
     typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
                                                                                        // TODO : change by hyper NN in order to test hyper NEAT 
     typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
@@ -131,8 +131,8 @@ int main(int argc, char **argv)
     typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; 
     typedef qd::container::Archive<phen_t, storage_t, Params> container_t; 
 
-    //typedef eval::Eval<Params> eval_t; //(useful for debbuging)
-    typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
+    typedef eval::Eval<Params> eval_t; //(useful for debbuging)
+    //typedef eval::Parallel<Params> eval_t; //parallel eval (faster)
  
 
     

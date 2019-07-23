@@ -45,6 +45,7 @@ def extract_data(filename):
 
 if __name__ == '__main__':
 
+
 	### PLOT RANDOM BEHAVIOURS
 	# for i in range(0,5):
 
@@ -85,6 +86,9 @@ if __name__ == '__main__':
 	L_X, L_Y, target = extract_data(filename)
 
 	plt.figure()
+
+	plt.xlim(-0.8,0.8)
+	plt.ylim(-0.8,0.8)
 
 	plt.title('Fitness: Time dependant distance')
 		

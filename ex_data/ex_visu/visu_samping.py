@@ -33,8 +33,7 @@ def extract_data(filename):
 			L_Y.append([float(split_line[1])])
 			print("pos : ",L_X[-1]," ",L_Y[-1])
 			
-
-	print(len(L_X)," samples extracted", filename)
+	print(L_X," samples extracted", filename)
 
 	return(L_X, L_Y)
 
@@ -49,22 +48,25 @@ if __name__ == '__main__':
 
 	plt.figure()
 
-	for i in range(0,16):
-		plt.scatter(L_X[i],L_Y[i], c='r')
+	# for i in range(0,16):
+	# 	plt.scatter(L_X[i],L_Y[i], c='r')
 
-	for i in range(16,32):
-		plt.scatter(L_X[i],L_Y[i], c='b')
+	# for i in range(16,32):
+	# 	plt.scatter(L_X[i],L_Y[i], c='b')
 
-	for i in range(32,48):
-		plt.scatter(L_X[i],L_Y[i], c='y')
+	# for i in range(32,48):
+	# 	plt.scatter(L_X[i],L_Y[i], c='y')
 
-	for i in range(48,64):
-		plt.scatter(L_X[i],L_Y[i], c='g')
+	# for i in range(48,64):
+	# 	plt.scatter(L_X[i],L_Y[i], c='g')
 
-	plt.Circle((0,0),0.25)
-	plt.Circle((0,0),0.50)
-	plt.Circle((0,0),0.75)
-	plt.Circle((0,0),1)
+	# plt.Circle((0,0),0.25)
+	# plt.Circle((0,0),0.50)
+	# plt.Circle((0,0),0.75)
+	# plt.Circle((0,0),1)
+
+	for i in range(0,len(L_X)):
+		plt.scatter(L_X[i], L_Y[i], c = 'r')
 
 	plt.show()
 

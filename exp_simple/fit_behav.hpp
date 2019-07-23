@@ -79,7 +79,7 @@ using namespace sferes::gen::evo_float;
 struct Params {
   struct evo_float {
     SFERES_CONST float mutation_rate = 0.3f;
-    SFERES_CONST float cross_rate = 0.1f;
+    SFERES_CONST float cross_rate = 0.0f;
     SFERES_CONST mutation_t mutation_type = polynomial;
     SFERES_CONST cross_over_t cross_over_type = sbx;
     SFERES_CONST float eta_m = 10.0f;

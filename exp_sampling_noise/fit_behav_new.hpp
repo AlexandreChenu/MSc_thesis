@@ -203,10 +203,10 @@ FIT_QD(nn_mlp){
           samples_stream >> output; //sample reading has been tested
           
           target[0] = target_root[0] + output;
-          //std::cout << "target x: " << target[0] << std::endl;
+          std::cout << "target x: " << target[0] << std::endl;
           samples_stream >> output; 
           target[1] = target_root[1] + output;
-          //std::cout << "target y: " << target[1] << std::endl;
+          std::cout << "target y: " << target[1] << std::endl;
 
           std::vector<float> inputs(5);//TODO : what input do we use for our Neural network?
 
@@ -257,7 +257,7 @@ FIT_QD(nn_mlp){
         Eigen::Vector3d final_pos; 
         final_pos = forward_model(robot_angles);
 
-        if (sqrt(square(target.array() - final_pos.array()).sum()) < 0.02){
+        if (sqrt(square(target.array() - final_pos.array()).sum()) < 0.01){
           fits[s] = 1.0 + dist/500; // -> 1
         }
         else {

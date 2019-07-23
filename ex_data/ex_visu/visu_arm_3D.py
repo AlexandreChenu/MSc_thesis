@@ -33,7 +33,7 @@ def extract_data(filename):
 			split_line = line.split()
 			L_X.append([float(split_line[-4])]) 
 			L_Y.append([float(split_line[-3])])
-			L_angles.append([float(split_line[-7]), float(split_line[-6]), float(split_line[-5])])
+			L_angles.append([float(split_line[-8]), float(split_line[-7]), float(split_line[-6]), float(split_line[-5])])
 			#L_fitness.append(float(split_line[3]))
 			print("pos : ",L_X[-1]," ",L_Y[-1])
 			
@@ -44,29 +44,34 @@ def extract_data(filename):
 	return(L_X, L_Y, L_angles, target)
 
 
-def forward_model(theta1, theta2, theta3):
+def forward_model(theta0, theta1, theta2, theta3):
 
 	#print(theta1)
 	#print(type(theta1))
 
-	T_12 = np.array([[np.cos(theta1), -np.sin(theta1)],[np.sin(theta1), np.cos(theta1)]])
-	T_23 = np.array([[np.cos(theta2), -np.sin(theta2)],[np.sin(theta2), np.cos(theta2)]])
+	T_01 = np.array([[np.cos(theta0), -np.sin(theta0), 0],[np.sin(theta0), np.cos(theta0), 0], [0, 0, 1]])
+	T_12 = np.array([[1, 0, 0], [0, np.cos(theta1), -np.sin(theta1)],[0, np.sin(theta1), np.cos(theta1)]])
+	T_23 = np.array([[1, 0, 0], [0, np.cos(theta2), -np.sin(theta2)],[0, np.sin(theta2), np.cos(theta2)]])
 
-	return(T_12,T_23)
+
+	return(T_01, T_12, T_23)
 
 
-def get_position(theta1,theta2,theta3) :
+def get_position(theta0, theta1,theta2,theta3) :
 
+	l0 = 1
 	l1 = 1 #arm's first part size
 	l2 = 1
 	l3 = 1
 
-	T_12, T_23 = forward_model(theta1, theta2, theta3)
-	T_13 = T_12@T_23
+	T_01, T_12, T_23 = forward_model(theta0, theta1, theta2, theta3)
+	T_02 = T_01@T_12 
+	T_03 = T_01@T_12@T_23
 
-	v_1 = np.array([[l1*np.cos(theta1)],[l1*np.sin(theta1)]])
-	v_2 = T_12 @ np.array([[l2*np.cos(theta2)],[l2*np.sin(theta2)]])
-	v_3 = T_13 @ np.array([[l3*np.cos(theta3)],[l2*np.sin(theta3)]])
+	v_0 = np.array([[0], [0], [l0]])
+	v_1 = T_01 @ np.array([[0], [l1*np.cos(theta1)], [l1*np.sin(theta1)]])
+	v_2 = T_02 @ np.array([[0], [l2*np.cos(theta2)], [l2*np.sin(theta2)]])
+	v_3 = T_03 @ np.array([[0], [l3*np.cos(theta3)], [l2*np.sin(theta3)]])
 
 	return (v_1 + v_2 + v_3, v_1, v_2, v_3)
 

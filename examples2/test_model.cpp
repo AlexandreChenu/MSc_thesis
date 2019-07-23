@@ -205,14 +205,16 @@ int run_simu(T & model, int t_max, std::string filename) {
     //target[1] = radius*sin(theta);
     //target[2] = 0;
 
-    //target = {-0.2,-0.2,0.0};
+    //target = {0.2,0.2,0.0};
     //target = {-1, 0.0, 0.0};
-    //target = {-0.211234, 0.59688,0.0};
-    target = {-0.2, 0.65,0.0};
+    //target = {-0.211234, -0.39688,0.0};
+    target = {-0.211234, 0.59688,0.0};
+    //target = {-0.2, 0.62,0.0};
     //target = {-0.0523658, -0.0159459,0.0};
-    //target = {0.0, -0.5, 0.0};
+    //target = {0.1, 0.5, 0.0};
+
     //target = {0.0, 0.5, 0.0};
-    //target = {0.173819, -0.156174, 0.0};
+    //target = {0.511499, 0.510531, 0.0};
     
     //open logfile
     logfile.open(filename);
@@ -280,9 +282,9 @@ int main(int argc, char **argv) {
 
 	typedef nn_mlp<Params> fit_t; 
 	typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;
-  typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
+  //typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> bias_t;
   typedef PfWSum<weight_t> pf_t;
-  typedef AfSigmoidBias<bias_t> af_t;
+  typedef AfSigmoidNoBias<> af_t;
   typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>,  Connection<weight_t>, Params> gen_t; // TODO : change by DnnFF in order to use only feed-forward neural networks
                                                                                        // TODO : change by hyper NN in order to test hyper NEAT 
   typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
@@ -290,9 +292,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/ex_data/test_final_simple/model_10000.bin";
-
-
+	const std::string filename = "/git/sferes2/exp/tmp/model_10000.bin";
 	std::cout << "model...loading" << std::endl;
 	{
 	std::ifstream ifs(filename , std::ios::binary);
@@ -306,7 +306,7 @@ int main(int argc, char **argv) {
 
 	std::cout << "model initialized" << std::endl;
 
-	std::string logfile = "/git/sferes2/exp/ex_data/test_final_simple/log_model_10000_noisy_y.txt";
+	std::string logfile = "/git/sferes2/exp/ex_data/test_no_bias_sample/log_model_10000_no_cross.txt";
 
 	run_simu(model, 10, logfile);
 
