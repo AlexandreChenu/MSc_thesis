@@ -33,7 +33,7 @@ def extract_data(filename):
 			L_Y.append([float(split_line[1])])
 			print("pos : ",L_X[-1]," ",L_Y[-1])
 			
-	print(L_X," samples extracted", filename)
+	print(len(L_X)," samples extracted", filename)
 
 	return(L_X, L_Y)
 

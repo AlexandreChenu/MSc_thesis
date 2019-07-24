@@ -307,7 +307,8 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/ex_data/test_no_bias_sample/model_10000.bin";
+	const std::string filename = "/git/sferes2/exp/ex_data/test_300_samples_no_bias/model_10000.bin";
+  
 	std::cout << "model...loading" << std::endl;
 	{
 	std::ifstream ifs(filename , std::ios::binary);
@@ -322,7 +323,7 @@ int main(int argc, char **argv) {
 	std::cout << "model initialized" << std::endl;
 
 	std::string filename_in = "/git/sferes2/exp/ex_data/samples_in.txt";
-  std::string filename_out = "/git/sferes2/exp/ex_data/samples_out.txt";
+  std::string filename_out = "/git/sferes2/exp/ex_data/test_300_samples_no_bias/samples_out.txt";
 
 	run_simu(model, 10, filename_in, filename_out);
   
