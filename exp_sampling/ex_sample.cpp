@@ -45,6 +45,7 @@
 #include "/git/sferes2/exp/exp_sampling/best_fit_it.hpp"
 //#include "/git/sferes2/exp/exp_sampling/fit_behav.hpp"
 
+
 #include <sferes/stat/qd_container.hpp>
 #include <sferes/stat/qd_selection.hpp>
 #include <sferes/stat/qd_progress.hpp>
@@ -141,8 +142,6 @@ int main(int argc, char **argv)
         stat::QdProgress<phen_t, Params> 
         >
         stat_t; 
-
-
 
     typedef modif::Dummy<> modifier_t; //place holder
     
