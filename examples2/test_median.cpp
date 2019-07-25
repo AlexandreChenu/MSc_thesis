@@ -21,7 +21,7 @@
 int main(int argc, char **argv) 
 {   
 
-	std::string filename_in = "/git/sferes2/exp/ex_data/test_300_nr_samples_no_bias/samples_out.txt";
+	std::string filename_in = "/git/sferes2/exp/ex_data/test_300_samples_no_bias/samples_out.txt";
 	std::ifstream input_file; 
 	input_file.open(filename_in);
 

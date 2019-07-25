@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
 	extension = input("Which file would you want to visualize ? (it should be in ex_data directory) ")
 
-	filename = "/Users/mobby/git/ex_data/" + extension
+	filename = "/Users/mobby/git/" + extension
 			
 	L_X, L_Y= extract_data(filename)
 

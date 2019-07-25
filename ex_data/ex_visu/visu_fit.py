@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.colors
 
-filename_in = "/Users/mobby/git/ex_data/samples_in.txt"
-filename_out = "/Users/mobby/git/ex_data/test_300_samples_no_bias/samples_out.txt"
+filename_in = "/Users/mobby/git/exp_sampling/samples.txt"
+filename_out = "/Users/mobby/git/ex_data/test_300_nr_samples_no_bias/samples_out.txt"
 
 def extract_data_io(filename_in, filename_out):
 

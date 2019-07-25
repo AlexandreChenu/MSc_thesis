@@ -192,7 +192,6 @@ int run_simu(T & model, int t_max, std::string filename_in, std::string filename
     std::ifstream input_file; 
 
     Eigen::Vector3d prev_pos; //compute previous position
-    Eigen::Vector3d output;
     Eigen::Vector3d pos_init;
 
     std::vector<double> zone_exp(3);
@@ -221,6 +220,12 @@ int run_simu(T & model, int t_max, std::string filename_in, std::string filename
 
       std::cout << "new sample " << s << std::endl;
 
+      model.develop();
+
+      std::cout << "model developed" << std::endl;
+
+      std::cout << "model initialized" << std::endl;
+
       double dist = 0;
 
       double out;
@@ -228,7 +233,9 @@ int run_simu(T & model, int t_max, std::string filename_in, std::string filename
       target[0] = out;
       input_file >> out;
       target[1] = out;
-      target[2] = 0;  
+      target[2] = 0; 
+
+      robot_angles = {0,M_PI,M_PI}; 
 
       //get gripper's position
       prev_pos = forward_model(robot_angles);
@@ -248,9 +255,10 @@ int run_simu(T & model, int t_max, std::string filename_in, std::string filename
             ////DATA GO THROUGH NN
             //model.nn().init(); //init neural network 
 
-            for (int j = 0; j < 10   + 1; ++j)
+            for (int j = 0; j < model.gen().get_depth() + 1; ++j) //In case of FFNN
               model.nn().step(inputs);
             
+            Eigen::Vector3d output;
             for (int indx = 0; indx < 3; ++indx){
               output[indx] = 2*(model.nn().get_outf(indx) - 0.5)*_vmax; //Remap to a speed between -v_max and v_max (speed is saturated)
               robot_angles[indx] += output[indx]*_delta_t; //Compute new angles
@@ -279,6 +287,8 @@ int run_simu(T & model, int t_max, std::string filename_in, std::string filename
         out_fit = dist/500;} // -> 0
 
       output_file << out_fit << "\n";
+
+      std::cout << "fitness: " << out_fit << std::endl;
   }
 
   std::cout << "test done" << std::endl;
@@ -307,7 +317,7 @@ int main(int argc, char **argv) {
 
 	phen_t model; 
 
-	const std::string filename = "/git/sferes2/exp/ex_data/test_300_nr_samples_no_bias/model_10000.bin";
+	const std::string filename = "/git/sferes2/exp/ex_data/test_300_samples_no_bias/model_10000.bin";
   
 	std::cout << "model...loading" << std::endl;
 	{
@@ -317,13 +327,10 @@ int main(int argc, char **argv) {
 	}
   std::cout << "model...loaded" << std::endl;
 
-  model.develop();
-	std::cout << "model developed" << std::endl;
-
-	std::cout << "model initialized" << std::endl;
+  // model.develop();
 
 	std::string filename_in = "/git/sferes2/exp/exp_sampling/samples.txt";
-  std::string filename_out = "/git/sferes2/exp/ex_data/test_300_nr_samples_no_bias/samples_out.txt";
+  std::string filename_out = "/git/sferes2/exp/ex_data/test_300_samples_no_bias/samples_out.txt";
 
 	run_simu(model, 10, filename_in, filename_out);
   

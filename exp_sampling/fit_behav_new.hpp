@@ -157,7 +157,7 @@ FIT_QD(nn_mlp){
       //void eval(Indiv & ind, IO & input, IO & target){ //ind : altered phenotype
       void eval(Indiv & ind){ //ind : altered phenotype
 
-        //std::cout << "EVALUATION" << std::endl;
+        //std::cout << "EVALUATION NEW" << std::endl;
 
         Eigen::Vector3d robot_angles;
         Eigen::Vector3d target;
@@ -194,14 +194,18 @@ FIT_QD(nn_mlp){
           robot_angles = {0,M_PI,M_PI}; //init everytime at the same place
           Eigen::Vector3d pos_init = forward_model(robot_angles); //initial position
 
-	  for (int i=0; i< 3; i++)
-		zone_exp[i] = 0;
-           
-	  double output;
-          samples_stream >> output; //sample reading has been tested
-          target[0] = output;
-          samples_stream >> output; 
-          target[1] = output;
+	        for (int i=0; i< 3; i++){
+		        zone_exp[i] = 0;}
+          
+	        
+          double out;
+
+          samples_stream >> out; //sample reading has been tested
+          target[0] = out;
+          //std::cout << "target x: " << target[0] << std::endl;
+          samples_stream >> out; 
+          target[1] = out;
+          //std::cout << "target y: " << target[1] << std::endl;
 
           std::vector<float> inputs(5);//TODO : what input do we use for our Neural network?
 
@@ -255,6 +259,7 @@ FIT_QD(nn_mlp){
         if (sqrt(square(target.array() - final_pos.array()).sum()) < 0.02){
           fits[s] = 1.0 + dist/500; // -> 1
         }
+
         else {
           fits[s] = dist/500; // -> 0
         }
