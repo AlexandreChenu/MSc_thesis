@@ -72,7 +72,12 @@ def build(bld):
                 uselib = 'TBB BOOST EIGEN PTHREAD MPI',
                 use = 'sferes2',
                 target = 'test_model_sample')
-    
+    bld.program(features = 'cxx',
+                source = 'test_median.cpp',
+                includes = '. ../../',
+                uselib = 'TBB BOOST EIGEN PTHREAD MPI',
+                use = 'sferes2',
+                target = 'test_median') 
 
 #    bld.program(features = 'cxx',
 #                source = 'ex_behav_serial.cpp',
