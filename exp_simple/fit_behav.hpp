@@ -48,7 +48,7 @@
 
 #include <sferes/fit/fit_qd.hpp>
 #include <sferes/qd/container/archive.hpp>
-#include <sferes/qd/container/kdtree_storage.hpp>
+//#include <sferes/qd/container/kdtree_storage.hpp>
 #include <sferes/qd/container/sort_based_storage.hpp>
 #include <sferes/qd/container/grid.hpp>
 #include <sferes/qd/quality_diversity.hpp>
@@ -262,7 +262,8 @@ FIT_QD(nn_mlp){
   //std::cout << "test unitaire - bd: zone 1: " << zone_exp[0]/(_t_max/_delta_t) << " zone 2: " << zone_exp[1]/(_t_max/_delta_t) << " zone 3: " << zone_exp[2]/(_t_max/_delta_t) << std::endl;
 
         this->set_desc(desc); //Which behavior descriptor? The three motors angles
-      }
+	//std::cout << "END EVALUATION" << std::endl;      
+}
 
   Eigen::Vector3d forward_model(Eigen::VectorXd a){
     

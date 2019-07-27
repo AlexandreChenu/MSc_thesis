@@ -1,6 +1,7 @@
 //| This file is a part of the sferes2 framework.
 //| Copyright 2016, ISIR / Universite Pierre et Marie Curie (UPMC)
 //| Main contributor(s): Jean-Baptiste Mouret, mouret@isir.fr
+
 //|
 //| This software is a computer program whose purpose is to facilitate
 //| experiments in evolutionary computation and evolutionary robotics.
@@ -45,6 +46,8 @@
 
 //#include "/git/sferes2/exp/exp_simple/best_fit_nn.hpp"
 #include "/git/sferes2/exp/exp_simple/best_fit_it.hpp"
+//#include "/home/vagrant/git/exp_simple/best_fit_it.hpp"
+
 
 #include <sferes/stat/qd_container.hpp>
 #include <sferes/stat/qd_selection.hpp>
@@ -53,7 +56,7 @@
 
 #include <sferes/fit/fit_qd.hpp>
 #include <sferes/qd/container/archive.hpp>
-#include <sferes/qd/container/kdtree_storage.hpp>
+//#include <sferes/qd/container/kdtree_storage.hpp>
 #include <sferes/qd/container/sort_based_storage.hpp>
 #include <sferes/qd/container/grid.hpp>
 #include <sferes/qd/quality_diversity.hpp>
@@ -100,7 +103,8 @@ Eigen::Vector3d forward_model(Eigen::VectorXd a){
       submat<<cos(a(i)), -sin(a(i)), 0, _l_arm(i), sin(a(i)), cos(a(i)), 0 , 0, 0, 0, 1, 0, 0, 0, 0, 1;
       mat=mat*submat;
     }
-    
+   
+ 
     Eigen::Matrix4d submat;
     submat<<1, 0, 0, _l_arm(a.size()), 0, 1, 0 , 0, 0, 0, 1, 0, 0, 0, 0, 1;
     mat=mat*submat;
@@ -162,5 +166,5 @@ int main(int argc, char **argv)
 
 
     std::cout << "simple example...done" << std::endl;
-    return 0;
-  }
+    return 0;  
+}
