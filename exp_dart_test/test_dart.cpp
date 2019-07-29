@@ -52,8 +52,20 @@
 #include <sferes/qd/selector/tournament.hpp>
 #include <sferes/qd/selector/uniform.hpp>
 
+#include <modules/nn2/mlp.hpp>
+#include <modules/nn2/gen_dnn.hpp>
+#include <modules/nn2/phen_dnn.hpp>
+#include <modules/nn2/gen_dnn_ff.hpp>
 
-#include "fit_hexa.hpp"
+
+#include <cmath>
+#include <algorithm>
+
+#include <cstdlib>
+
+
+#include "fit_hexa_nn.hpp"
+#include "best_fit_nn.hpp"
 
 
 using namespace sferes::gen::evo_float;
@@ -75,12 +87,34 @@ struct Params {
         SFERES_CONST size_t nb_gen = 500;
         SFERES_CONST size_t dump_period = 100;
     };
+
+    struct dnn {
+        SFERES_CONST size_t nb_inputs = 18 + 2 + 3; //previous commands(18) / distance to target / orientation
+        SFERES_CONST size_t nb_outputs  = 18; //new commands
+        SFERES_CONST size_t min_nb_neurons  = 41;
+        SFERES_CONST size_t max_nb_neurons  = 100;
+        SFERES_CONST size_t min_nb_conns  = 150;
+        SFERES_CONST size_t max_nb_conns  = 300;
+        SFERES_CONST float  max_weight  = 2.0f;
+        SFERES_CONST float  max_bias  = 2.0f;
+
+        SFERES_CONST float m_rate_add_conn  = 1.0f;
+        SFERES_CONST float m_rate_del_conn  = 1.0f;
+        SFERES_CONST float m_rate_change_conn = 1.0f;
+        SFERES_CONST float m_rate_add_neuron  = 1.0f;
+        SFERES_CONST float m_rate_del_neuron  = 1.0f;
+
+        SFERES_CONST int io_param_evolving = true;
+        //SFERES_CONST init_t init = random_topology;
+        SFERES_CONST init_t init = ff;
+    };
+
     struct parameters {
       SFERES_CONST float min = 0.0;
       SFERES_CONST float max = 1.0;
     };
     struct evo_float {
-        SFERES_CONST float cross_rate = 0.0f;
+        SFERES_CONST float cross_rate = 0.1f;
         SFERES_CONST float mutation_rate = 0.03f;
         SFERES_CONST float eta_m = 10.0f;
         SFERES_CONST float eta_c = 10.0f;
@@ -89,7 +123,7 @@ struct Params {
     };
     struct qd {
         SFERES_CONST size_t dim = 2;
-        SFERES_CONST size_t behav_dim = 2;
+        SFERES_CONST size_t behav_dim = 2; //position finale encore
         SFERES_ARRAY(size_t, grid_shape, 100, 100);
     };
 };
@@ -104,6 +138,8 @@ void visualise_behaviour(int argc, char **argv){
   fit.simulate(ctrl);
 }
 
+//TODO: changer le visualise behaviour pour pouvoir visualiser le comportement du réseau de neurones
+
 
 int main(int argc, char **argv) 
 {
@@ -112,12 +148,24 @@ int main(int argc, char **argv)
 
     
     using namespace sferes;
-    typedef Fit_hexa<Params> fit_t;
-    typedef gen::EvoFloat<36, Params> gen_t;
-    typedef phen::Parameters<gen_t, fit_t, Params> phen_t;
+    using namespace nn;
 
-    typedef qd::selector::Uniform<phen_t, Params> select_t;
-    typedef qd::container::Grid<phen_t, Params> container_t;
+    typedef Fit_hexa_nn<Params> fit_t;
+
+    // typedef gen::EvoFloat<36, Params> gen_t;
+    typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;
+
+    typedef PfWSum<weight_t> pf_t;
+    typedef AfSigmoidNoBias<> af_t;
+    typedef sferes::gen::DnnFF<Neuron<pf_t, af_t>, Connection<weight_t>, Params> gen_t;
+
+    typedef phen::Dnn<gen_t, fit_t, Params> phen_t;
+
+    typedef qd::selector::getFitness ValueSelect_t;
+    typedef qd::selector::Tournament<phen_t, ValueSelect_t, Params> select_t; 
+
+    typedef qd::container::SortBasedStorage< boost::shared_ptr<phen_t> > storage_t; 
+    typedef qd::container::Archive<phen_t, storage_t, Params> container_t; 
 
 #ifdef GRAPHIC
     typedef eval::Eval<Params> eval_t;
@@ -126,11 +174,12 @@ int main(int argc, char **argv)
 #endif
 
     typedef boost::fusion::vector<
-        stat::BestFit<phen_t, Params>, 
+        stat::BestFitNN<phen_t, Params>, 
         stat::QdContainer<phen_t, Params>, 
         stat::QdProgress<phen_t, Params>, 
         stat::QdSelection<phen_t, Params>>
         stat_t; 
+
     typedef modif::Dummy<> modifier_t;
     typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t;
 
@@ -141,11 +190,14 @@ int main(int argc, char **argv)
 	return 0;
       }
 
-    // qd_t qd;
-    // run_ea(argc, argv, qd);
-    
-    // std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
-    // std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
-    // global::global_robot.reset();
+    qd_t qd;
+    //run_ea(argc, argv, qd); 
+
+    qd.run();
+    std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
+    std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
+
+    global::global_robot.reset();
+
     return 0;
 }
