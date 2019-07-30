@@ -86,7 +86,7 @@ namespace robot_dart {
         _skeleton->setCommands(commands);
     }
 
-    template <Model model>
+    template <typename Model>
     void Robot::update_nn(double t, Model model, Eigen::Vector3d target)
     {   
 

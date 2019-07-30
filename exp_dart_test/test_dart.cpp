@@ -64,7 +64,7 @@
 #include <cstdlib>
 
 
-#include "fit_hexa_nn.hpp"
+#include "fit_hexa_control_nn.hpp"
 #include "best_fit_nn.hpp"
 
 
@@ -89,8 +89,8 @@ struct Params {
     };
 
     struct dnn {
-        SFERES_CONST size_t nb_inputs = 18 + 2 + 3; //previous commands(18) / distance to target / orientation
-        SFERES_CONST size_t nb_outputs  = 18; //new commands
+        SFERES_CONST size_t nb_inputs = 12 + 2 + 3; //previous commands(12) -> DOF3 = -DOF2 / distance to target / orientation
+        SFERES_CONST size_t nb_outputs  = 12; //new commands
         SFERES_CONST size_t min_nb_neurons  = 41;
         SFERES_CONST size_t max_nb_neurons  = 100;
         SFERES_CONST size_t min_nb_conns  = 150;
@@ -123,7 +123,7 @@ struct Params {
     };
     struct qd {
         SFERES_CONST size_t dim = 2;
-        SFERES_CONST size_t behav_dim = 2; //position finale encore
+        SFERES_CONST size_t behav_dim = 3; //position finale encore
         SFERES_ARRAY(size_t, grid_shape, 100, 100);
     };
 };
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
     using namespace sferes;
     using namespace nn;
 
-    typedef Fit_hexa_nn<Params> fit_t;
+    typedef Fit_hexa_control_nn<Params> fit_t;
 
     // typedef gen::EvoFloat<36, Params> gen_t;
     typedef phen::Parameters<gen::EvoFloat<1, Params>, fit::FitDummy<>, Params> weight_t;

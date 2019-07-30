@@ -35,7 +35,7 @@ namespace robot_dart {
 
         void update(double t);
         
-        template <Model model>
+        template <typename Model>
         void Robot::update_nn(double t, Model model, Eigen::Vector3d target)
 
         void reinit_controllers();
