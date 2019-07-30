@@ -10,8 +10,5 @@ fi
 
 grep -v "NOTFORFINAL" singularity.def > tmp.def
 IMAGENAME=final_$(basename $(dirname "$(pwd)"))_$(date +%Y-%m-%d_%H_%M_%S).simg
-echo "start downloading..."
-singularity build -f --fakeroot $IMAGENAME tmp.def
-echo "download finished, let's clean that mess..."
+singularity build --force --fakeroot $IMAGENAME tmp.def
 rm ./tmp.def
-echo "done"

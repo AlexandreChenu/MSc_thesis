@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LOCAL_EXP_PATH=${pwd}'/..'
-IMAGENAME='example_dart_exp.simg'
+IMAGENAME='exp_dart_test.simg'
 DEFNAME='singularity.def'
 SANDBOX=true
 
@@ -34,7 +34,7 @@ if [ -f "$IMAGENAME" ] || [ -d "$IMAGENAME" ]; then
     echo "$IMAGENAME exists"
 else
     echo "$IMAGENAME does not exist, building it now from $DEFNAME"
-    singularity build -f --fakeroot $BLD_ARGS $IMAGENAME $DEFNAME 
+    singularity -v build -f --fakeroot $BLD_ARGS $IMAGENAME $DEFNAME 
 fi
 
 singularity shell $RUN_ARGS --bind $(pwd)/../..:/git/sferes2/exp $IMAGENAME

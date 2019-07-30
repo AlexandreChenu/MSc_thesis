@@ -48,7 +48,7 @@ void load_and_init_robot()
 FIT_QD(Fit_hexa_control_nn)
 {
 public:
-  Fit_hexa(){  }
+  Fit_hexa_control_nn(){  }
   
   typedef Eigen::Matrix<float,Eigen::Dynamic,Eigen::Dynamic, Eigen::RowMajor > Mat;
 
@@ -88,11 +88,11 @@ public:
     g_robot->skeleton()->setPosition(5, 0.15);
 
     double ctrl_dt = 0.015;
-    g_robot->add_controller(std::make_shared<robot_dart::control::HexaControlNN>());
-    std::static_pointer_cast<robot_dart::control::HexaControlNN>(g_robot->controllers()[0])->set_h_params(std::vector<double>(1, ctrl_dt));
+    g_robot->add_controller(std::make_shared<robot_dart::control::HexaControlNN<Model>>());
+    std::static_pointer_cast<robot_dart::control::HexaControlNN<Model>>(g_robot->controllers()[0])->set_h_params(std::vector<double>(1, ctrl_dt));
 
-    g_robot->controllers()[0]->setModel(model); //TODO : understand why do we use a static pointer cast
-    g_robot->controllers()[0]->setTarget(target);
+    std::static_pointer_cast<robot_dart::control::HexaControlNN<Model>>(g_robot->controllers()[0])->setModel(model); //TODO : understand why do we use a static pointer cast
+    std::static_pointer_cast<robot_dart::control::HexaControlNN<Model>>(g_robot->controllers()[0])->setTarget(target);
 
     
     robot_dart::RobotDARTSimu simu(0.005); //creation d'une simulation
@@ -118,7 +118,7 @@ public:
   std::vector<double> get_fit_bd(std::vector<Eigen::VectorXf> & traj, Eigen::Vector3d & target)
   {
 
-    int size = traj->size();
+    int size = traj.size();
     double dist = 0;
     std::vector<double> zone_exp(3);
     std::vector<double> res(3);
@@ -129,11 +129,11 @@ public:
 
     for (int i = 0; i < size; i++)
       {
-        if (sqrt(square(target->array() - traj[i].array()).sum()) < 0.02){
-          dist -= sqrt(square(target->array() - traj[i].array()).sum());}
+        if (sqrt((target[0]-_traj.back()[0])*(target[0]-_traj.back()[0]) + (target[1]-_traj.back()[1])*(target[1]-_traj.back()[1])) < 0.02){
+          dist -= sqrt((target[0]-_traj.back()[0])*(target[0]-_traj.back()[0]) + (target[1]-_traj.back()[1])*(target[1]-_traj.back()[1]));}
 
         else {
-          dist -= (log(1+t)) + (sqrt(square(target->array() - traj[i].array()).sum()));}
+          dist -= (log(1+i)) + sqrt((target[0]-_traj.back()[0])*(target[0]-_traj.back()[0]) + (target[1]-_traj.back()[1])*(target[1]-_traj.back()[1]));}
 
         res = get_zone(pos_init, target, traj[i]); //TODO : check if get zone accepts vector with different sizes
         zone_exp[0] = zone_exp[0] + res[0];
@@ -155,7 +155,7 @@ public:
     results[2] = zone_exp[1]/sum_zones;
     results[3] = zone_exp[2]/sum_zones;
 
-    return(results)
+    return results;
   }
 
   std::vector<double> get_zone(Eigen::Vector3d start, Eigen::Vector3d target, Eigen::Vector3d pos){

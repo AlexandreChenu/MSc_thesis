@@ -55,7 +55,7 @@ namespace robot_dart {
                 return std::vector<double>(1, _dt);
             }
 
-            template <typename Indiv>
+            //template <typename Indiv>
             void setModel (Indiv & model)
             {
                 _model = model;
@@ -76,8 +76,8 @@ namespace robot_dart {
 
                 //auto pos?
                 auto pos= robot->skeleton()->getPositions().head(6).tail(3).cast <float> (); //obtain robot's position
-                inputs[0] = pos[0] - target[0];
-                inputs[1] = pos[1] - target[1];
+                inputs[0] = pos[0] - _target[0];
+                inputs[1] = pos[1] - _target[1];
 
                 Eigen::VectorXd prev_commands_full = robot->skeleton()->getCommands(); //get previous command -> TODO : check, it might be of size 24
                 
@@ -123,16 +123,15 @@ namespace robot_dart {
                         }
                     }
 
-                std::cout << "test unitaire - size de la commande en sortie format std vector(=18?) : " << commands_out.size() << endl;
+                std::cout << "test unitaire - size de la commande en sortie format std vector(=18?) : " << commands_out.size() << std::endl;
 
                 Eigen::VectorXd commands(commands_out.data());
 
-                std::cout << "test unitaire - size de la commande en sortie format eigen vector (=18?) : " << commands.size() << endl;
-                }
+                std::cout << "test unitaire - size de la commande en sortie format eigen vector (=18?) : " << commands.size() << std::endl;
+                
+                return commands;}
 
-                return commands;
-
-            }
+            
 
         protected:
             hexapod_controller::HexapodControllerSimple _controller;
