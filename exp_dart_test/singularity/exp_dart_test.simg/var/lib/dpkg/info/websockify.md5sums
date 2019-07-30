@@ -1,0 +1,7 @@
+ab55d7b9f72526629139b2eaad4e1ad7  usr/bin/rebind
+14d21e8cbe937888b71ab991792880a8  usr/lib/websockify/rebind.o
+d4e8ad283e29465192e99fc99121aab3  usr/lib/websockify/rebind.so
+c6bd9d5104682a8a86e8abc2b903701f  usr/share/doc/websockify/CHANGES.txt
+0c080fc5f8cae4cb31193bba7a509573  usr/share/doc/websockify/README.md.gz
+d6ce6675b88be72dee6d67ae72c565b4  usr/share/doc/websockify/copyright
+e8f32d0cc6deb1faacd1b52cfe1f4077  usr/share/man/man1/websockify.1.gz

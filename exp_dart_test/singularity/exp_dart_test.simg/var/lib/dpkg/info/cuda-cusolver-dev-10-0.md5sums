@@ -1,0 +1,12 @@
+aa5d36af660f78d42cc1efdcfb906ff8  usr/lib/pkgconfig/cusolver-10.0.pc
+f5a3783a51d2a719b79ff3cb8b29dbda  usr/local/cuda-10.0/targets/x86_64-linux/include/cusolverDn.h
+7d8679d4c7ff7c210456ffb15eaf3d82  usr/local/cuda-10.0/targets/x86_64-linux/include/cusolverRf.h
+a3f4215b5792cbd4d65629faf4472cc2  usr/local/cuda-10.0/targets/x86_64-linux/include/cusolverSp.h
+10a2f6dd81f56c812adb324da34208aa  usr/local/cuda-10.0/targets/x86_64-linux/include/cusolverSp_LOWLEVEL_PREVIEW.h
+c28c0b0ab87090c59addd5457a03316b  usr/local/cuda-10.0/targets/x86_64-linux/include/cusolver_common.h
+12c545e0d478eb3c246d8950069ca1d6  usr/local/cuda-10.0/targets/x86_64-linux/lib/libcusolver_static.a
+b1df17049a42be72a8bc1bff486210a6  usr/local/cuda-10.0/targets/x86_64-linux/lib/liblapack_static.a
+a21a40e6993cb0ece29c164803a731e0  usr/local/cuda-10.0/targets/x86_64-linux/lib/libmetis_static.a
+645015d1d36090a59467be3e2ddaea4d  usr/local/cuda-10.0/targets/x86_64-linux/lib/stubs/libcusolver.so
+34d1ca7affc5f267f7a0cb5b8773af1b  usr/share/doc/cuda-cusolver-dev-10-0/changelog.Debian.gz
+59cb552ac30d30ce823a476cdf13596f  usr/share/doc/cuda-cusolver-dev-10-0/copyright

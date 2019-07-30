@@ -1,0 +1,10 @@
+824340f0f11043aa18cf7748380158d8  usr/local/cuda-10.0/src/cusparse_fortran.c
+7f38a5eb9f838c4a5b72e6fa90841a76  usr/local/cuda-10.0/src/cusparse_fortran.h
+c4670e122072e9472bdf20c76ed6475c  usr/local/cuda-10.0/src/cusparse_fortran_common.h
+388af6a7f9585b2a974eb90d1a348b47  usr/local/cuda-10.0/src/fortran.c
+ee496100c7e5e0ddf76f8d2529360db6  usr/local/cuda-10.0/src/fortran.h
+fbd5822b173e5c2cac51d7c80379ab4f  usr/local/cuda-10.0/src/fortran_common.h
+5a9a04de166affa959093a0ab55efb03  usr/local/cuda-10.0/src/fortran_thunking.c
+0581cf90aeefb07d54036ee66c755080  usr/local/cuda-10.0/src/fortran_thunking.h
+34d1ca7affc5f267f7a0cb5b8773af1b  usr/share/doc/cuda-command-line-tools-10-0/changelog.Debian.gz
+59cb552ac30d30ce823a476cdf13596f  usr/share/doc/cuda-command-line-tools-10-0/copyright

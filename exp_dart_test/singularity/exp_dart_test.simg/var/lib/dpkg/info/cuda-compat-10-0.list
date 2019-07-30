@@ -1,0 +1,16 @@
+/.
+/usr
+/usr/local
+/usr/local/cuda-10.0
+/usr/local/cuda-10.0/compat
+/usr/local/cuda-10.0/compat/libcuda.so.410.104
+/usr/local/cuda-10.0/compat/libnvidia-fatbinaryloader.so.410.104
+/usr/local/cuda-10.0/compat/libnvidia-ptxjitcompiler.so.410.104
+/usr/share
+/usr/share/doc
+/usr/share/doc/cuda-compat-10-0
+/usr/share/doc/cuda-compat-10-0/changelog.Debian.gz
+/usr/local/cuda-10.0/compat/libcuda.so
+/usr/local/cuda-10.0/compat/libcuda.so.1
+/usr/local/cuda-10.0/compat/libnvidia-ptxjitcompiler.so
+/usr/local/cuda-10.0/compat/libnvidia-ptxjitcompiler.so.1

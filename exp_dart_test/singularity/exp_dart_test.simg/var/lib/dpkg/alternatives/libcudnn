@@ -1,0 +1,12 @@
+manual
+/usr/include/cudnn.h
+libcudnn_so
+/usr/lib/x86_64-linux-gnu/libcudnn.so
+libcudnn_stlib
+/usr/lib/x86_64-linux-gnu/libcudnn_static.a
+
+/usr/include/x86_64-linux-gnu/cudnn_v7.h
+70
+/usr/lib/x86_64-linux-gnu/libcudnn.so.7
+/usr/lib/x86_64-linux-gnu/libcudnn_static_v7.a
+

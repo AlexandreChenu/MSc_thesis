@@ -1,0 +1,8 @@
+e2bf3aaf0d09b648a3da177bab4dd830  usr/lib/x86_64-linux-gnu/vdpau/libvdpau_nouveau.so.1.0.0
+e2bf3aaf0d09b648a3da177bab4dd830  usr/lib/x86_64-linux-gnu/vdpau/libvdpau_r300.so.1.0.0
+e2bf3aaf0d09b648a3da177bab4dd830  usr/lib/x86_64-linux-gnu/vdpau/libvdpau_r600.so.1.0.0
+e2bf3aaf0d09b648a3da177bab4dd830  usr/lib/x86_64-linux-gnu/vdpau/libvdpau_radeonsi.so.1.0.0
+7f0d95ab544ef194372363bb93229ede  usr/share/bug/mesa-vdpau-drivers/control
+114f277e413ffae0a725cc024a955b47  usr/share/bug/mesa-vdpau-drivers/script
+45203cba3d4bf00f2e8bf10af10f032b  usr/share/doc/mesa-vdpau-drivers/changelog.Debian.gz
+83b59d2b89462ad74eca3699e8ccdf2f  usr/share/doc/mesa-vdpau-drivers/copyright

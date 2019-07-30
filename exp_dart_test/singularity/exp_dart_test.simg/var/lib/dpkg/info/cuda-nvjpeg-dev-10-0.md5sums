@@ -1,0 +1,6 @@
+f3d4b5e9be7b1eb183e031650126b0fd  usr/lib/pkgconfig/nvjpeg-10.0.pc
+b9f67d7654eadef3e7c073748938cc35  usr/local/cuda-10.0/targets/x86_64-linux/include/nvjpeg.h
+b684c940ed8147de76d444fd7c772eb0  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnvjpeg_static.a
+96c4fe5f121a477b96573aa7a42f6706  usr/local/cuda-10.0/targets/x86_64-linux/lib/stubs/libnvjpeg.so
+5cf15c56ce9ba07ef540150be5cd0419  usr/share/doc/cuda-nvjpeg-dev-10-0/changelog.Debian.gz
+59cb552ac30d30ce823a476cdf13596f  usr/share/doc/cuda-nvjpeg-dev-10-0/copyright

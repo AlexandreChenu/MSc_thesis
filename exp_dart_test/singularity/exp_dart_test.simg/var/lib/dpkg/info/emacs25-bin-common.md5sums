@@ -1,0 +1,12 @@
+0c9e09e58a6f442f091ba8f3685594ee  usr/bin/ctags.emacs25
+d3e5bfe871eb2aa6767ce7806670a526  usr/bin/ebrowse.emacs25
+391ebdc39404f8b2a713265003c3ae2b  usr/bin/emacsclient.emacs25
+566a106f74e50307647ac7660c84fe7e  usr/bin/etags.emacs25
+9542ca882845f5e367d8381b75dd21ae  usr/lib/emacs/25.2/x86_64-linux-gnu/hexl
+394b67ae5bffc0d94064817aec7ce154  usr/lib/emacs/25.2/x86_64-linux-gnu/movemail
+e88ab7c12fc039fcb0b8840942e91957  usr/lib/emacs/25.2/x86_64-linux-gnu/profile
+5861565509b20689dfe5f6769d50d3a4  usr/lib/emacs/25.2/x86_64-linux-gnu/rcs2log
+64eeb5aab12f0c3a5613bdd3c92724ab  usr/lib/emacs/25.2/x86_64-linux-gnu/update-game-score
+7173f6f16969674f4f4d155cf5c462bf  usr/share/doc/emacs25-bin-common/changelog.Debian.gz
+15c55ea9153531aedc77cdff182efb00  usr/share/doc/emacs25-bin-common/copyright
+1b44f39f5075a47a51e31c08edca53fa  usr/share/lintian/overrides/emacs25-bin-common

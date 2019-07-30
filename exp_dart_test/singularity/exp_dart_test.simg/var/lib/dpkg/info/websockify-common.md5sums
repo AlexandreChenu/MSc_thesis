@@ -1,0 +1,7 @@
+378b5f81b6e9ca0db9cce5ef17b23347  usr/share/doc/websockify-common/changelog.Debian.gz
+d6ce6675b88be72dee6d67ae72c565b4  usr/share/doc/websockify-common/copyright
+df108e5bf46f77951f5f72b7e7a9e4a2  usr/share/websockify/include/base64.js
+598a8ff17156ca5a8a5e6fba0a0e2825  usr/share/websockify/include/util.js
+8c2ec4bc2c9a39bc3f4ff92223077cf6  usr/share/websockify/include/web-socket-js/swfobject.js
+4e42a681980602a8e897cf4206d80bdf  usr/share/websockify/include/web-socket-js/web_socket.js
+32af96c975feeb7e33c6d3c1fa24965a  usr/share/websockify/include/websock.js

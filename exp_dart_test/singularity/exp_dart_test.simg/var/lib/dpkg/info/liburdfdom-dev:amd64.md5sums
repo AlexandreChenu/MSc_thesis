@@ -1,0 +1,5 @@
+deb9d20aaaaca6b7da1d035379985f10  usr/include/urdf_parser/exportdecl.h
+6fc68b755f5c59679ca1a70533fe6176  usr/include/urdf_parser/urdf_parser.h
+aead85b22a9e6683f9fb2840540445a0  usr/lib/x86_64-linux-gnu/pkgconfig/urdfdom.pc
+979b65ff3e0d398259e2acbe7cc44a61  usr/lib/x86_64-linux-gnu/urdfdom/cmake/urdfdom-config.cmake
+cab36e0e2d0ae98a9505f5239c91e756  usr/share/doc/liburdfdom-dev/copyright

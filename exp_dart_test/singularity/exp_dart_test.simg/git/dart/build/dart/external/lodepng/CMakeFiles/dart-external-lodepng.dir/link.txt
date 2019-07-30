@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -Wall -Wextra -fPIC -O3 -DNDEBUG -Wl,--no-undefined -shared -Wl,-soname,libdart-external-lodepng.so.7.0 -o libdart-external-lodepng.so.7.0.0 CMakeFiles/dart-external-lodepng.dir/lodepng.cpp.o 

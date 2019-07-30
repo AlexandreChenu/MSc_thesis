@@ -67,8 +67,9 @@
 #include "fit_hexa_control_nn.hpp"
 #include "best_fit_nn.hpp"
 
-
+using namespace sferes;
 using namespace sferes::gen::evo_float;
+using namespace sferes::gen::dnn;
 
 struct Params {
     struct nov {
@@ -128,15 +129,15 @@ struct Params {
     };
 };
 
-template<typename fit_t>
-void visualise_behaviour(int argc, char **argv){
+//template<typename fit_t>
+//void visualise_behaviour(int argc, char **argv){
     //std::cout << "yo" << std::endl;
-  std::vector<double> ctrl;
-  for (int i = 1; i < 37; i++) // total number of parameter = 36
-    ctrl.push_back(atof(argv[i]));
-  fit_t fit;
-  fit.simulate(ctrl);
-}
+//  std::vector<double> ctrl;
+//  for (int i = 1; i < 37; i++) // total number of parameter = 36
+//    ctrl.push_back(atof(argv[i]));
+//  fit_t fit;
+//  fit.simulate(ctrl);
+//}
 
 //TODO: changer le visualise behaviour pour pouvoir visualiser le comportement du réseau de neurones
 
@@ -172,6 +173,8 @@ int main(int argc, char **argv)
 #else
     typedef eval::Parallel<Params> eval_t;
 #endif
+    
+//    typedef eval::Eval<Params> eval_t;
 
     typedef boost::fusion::vector<
         stat::BestFitNN<phen_t, Params>, 
@@ -183,12 +186,12 @@ int main(int argc, char **argv)
     typedef modif::Dummy<> modifier_t;
     typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t;
 
-    if(argc==37)
-      {
-	visualise_behaviour<fit_t>(argc, argv);
-	global::global_robot.reset();
-	return 0;
-      }
+    //if(argc==37)
+    //  {
+	//visualise_behaviour<fit_t>(argc, argv);
+	//global::global_robot.reset();
+	//return 0;
+      //}
 
     qd_t qd;
     //run_ea(argc, argv, qd); 

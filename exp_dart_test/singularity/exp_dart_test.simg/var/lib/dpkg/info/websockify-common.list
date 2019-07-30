@@ -1,0 +1,15 @@
+/.
+/usr
+/usr/share
+/usr/share/doc
+/usr/share/doc/websockify-common
+/usr/share/doc/websockify-common/changelog.Debian.gz
+/usr/share/doc/websockify-common/copyright
+/usr/share/websockify
+/usr/share/websockify/include
+/usr/share/websockify/include/base64.js
+/usr/share/websockify/include/util.js
+/usr/share/websockify/include/web-socket-js
+/usr/share/websockify/include/web-socket-js/swfobject.js
+/usr/share/websockify/include/web-socket-js/web_socket.js
+/usr/share/websockify/include/websock.js

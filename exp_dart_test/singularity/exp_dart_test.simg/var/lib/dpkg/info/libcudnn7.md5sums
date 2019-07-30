@@ -1,0 +1,4 @@
+ed0bfe56e3df42cde629a858935a4fa1  usr/lib/x86_64-linux-gnu/libcudnn.so.7.6.0
+5d9e243090467d7cce55740f4de905b0  usr/share/doc/libcudnn7/changelog.Debian.gz
+d41d8cd98f00b204e9800998ecf8427e  usr/share/doc/libcudnn7/copyright
+33f9318ae011537907c66cc6c879f2a7  usr/share/lintian/overrides/libcudnn7

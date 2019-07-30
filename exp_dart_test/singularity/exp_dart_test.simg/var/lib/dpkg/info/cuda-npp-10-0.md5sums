@@ -1,0 +1,14 @@
+e65e9dd0bed7f559373c12fec4109a56  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppc.so.10.0.130
+ab009084a558572a83759a10d6b918c5  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppial.so.10.0.130
+030a7406a85d0a8f43bd9f7d974d09f2  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppicc.so.10.0.130
+ef6c9094efefe89c089ff515d7a7eac9  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppicom.so.10.0.130
+47240ef68f42c10e19fce38296ed3363  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppidei.so.10.0.130
+e123948da27156541c63809cb49a1aff  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppif.so.10.0.130
+0c55e1ff8a65bc55f203de9d53fa2a53  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppig.so.10.0.130
+0896cd61a5aeaf37cf2ed369cc157c32  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppim.so.10.0.130
+b34de8ca50bdcb69f36aeb8f1f399d9b  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppist.so.10.0.130
+eb94ad7c1481ccaf04ffdbba1d83aa98  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppisu.so.10.0.130
+a945a8f2e38d8e0fbe1bdbf03021b8f6  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnppitc.so.10.0.130
+b2b783309362ba7a1d8843b59d7109a3  usr/local/cuda-10.0/targets/x86_64-linux/lib/libnpps.so.10.0.130
+34d1ca7affc5f267f7a0cb5b8773af1b  usr/share/doc/cuda-npp-10-0/changelog.Debian.gz
+59cb552ac30d30ce823a476cdf13596f  usr/share/doc/cuda-npp-10-0/copyright

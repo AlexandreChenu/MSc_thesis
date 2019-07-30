@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.5.1)
+
+project(dart-examples)
+
+add_subdirectory(addDeleteSkels)
+add_subdirectory(atlasSimbicon)
+add_subdirectory(bipedStand)
+add_subdirectory(hardcodedDesign)
+add_subdirectory(hybridDynamics)
+add_subdirectory(jointConstraints)
+add_subdirectory(mixedChain)
+add_subdirectory(operationalSpaceControl)
+add_subdirectory(rigidChain)
+add_subdirectory(rigidCubes)
+add_subdirectory(rigidLoop)
+add_subdirectory(rigidShapes)
+add_subdirectory(simpleFrames)
+add_subdirectory(softBodies)
+add_subdirectory(speedTest)
+add_subdirectory(vehicle)
+add_subdirectory(humanJointLimits)
+
+add_subdirectory(osgExamples)

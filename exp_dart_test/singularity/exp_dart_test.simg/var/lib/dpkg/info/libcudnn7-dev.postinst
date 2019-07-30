@@ -1,0 +1,8 @@
+#! /bin/sh
+
+update-alternatives --force \
+                    --install /usr/include/cudnn.h libcudnn /usr/include/x86_64-linux-gnu/cudnn_v7.h  70\
+                    --slave   /usr/lib/x86_64-linux-gnu/libcudnn.so libcudnn_so /usr/lib/x86_64-linux-gnu/libcudnn.so.7 \
+                    --slave   /usr/lib/x86_64-linux-gnu/libcudnn_static.a libcudnn_stlib /usr/lib/x86_64-linux-gnu/libcudnn_static_v7.a 
+
+update-alternatives --set libcudnn /usr/include/x86_64-linux-gnu/cudnn_v7.h 

@@ -1,0 +1,10 @@
+7199c170f4bff746ba06ab569e3f35da  usr/lib/pkgconfig/cublas-10.0.pc
+daf5836144e15de359eb4a3aa17f5a4e  usr/local/cuda-10.0/targets/x86_64-linux/include/cublas.h
+45370e248ef3f27b7fc0cdaa857c9fc2  usr/local/cuda-10.0/targets/x86_64-linux/include/cublasXt.h
+fea47ca90d488367ae0ef9abf03a1a7f  usr/local/cuda-10.0/targets/x86_64-linux/include/cublas_api.h
+2ca2557aa219f72b21b4c3857ac54a3c  usr/local/cuda-10.0/targets/x86_64-linux/include/cublas_v2.h
+0c39946e7b4d5b1f1ae856f868b1d7b4  usr/local/cuda-10.0/targets/x86_64-linux/include/nvblas.h
+4db18892ae28517bd52e225b8b405a8d  usr/local/cuda-10.0/targets/x86_64-linux/lib/libcublas_static.a
+1841cf2bde6cc661e3bd43c72d1df096  usr/local/cuda-10.0/targets/x86_64-linux/lib/stubs/libcublas.so
+34d1ca7affc5f267f7a0cb5b8773af1b  usr/share/doc/cuda-cublas-dev-10-0/changelog.Debian.gz
+59cb552ac30d30ce823a476cdf13596f  usr/share/doc/cuda-cublas-dev-10-0/copyright
