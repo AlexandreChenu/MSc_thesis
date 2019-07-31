@@ -156,10 +156,11 @@ int main(int argc, char **argv)
     
     typedef qd::QualityDiversity<phen_t, eval_t, stat_t, modifier_t, select_t, container_t, Params> qd_t; 
     //typedef qd::MapElites<phen_t, eval_t, stat_t, modifier_t, Params> qd_t;
-
-    qd_t qd;
+    std::cout << "end all typedef init" << std::endl;
+    
+     qd_t qd;
     //run_ea(argc, argv, qd); 
-
+    std::cout << "run experiment" << std::endl;
     qd.run();
     std::cout<<"best fitness:" << qd.stat<0>().best()->fit().value() << std::endl;
     std::cout<<"archive size:" << qd.stat<1>().archive().size() << std::endl;
