@@ -1,7 +1,0 @@
-045e2c1b9aca9ae1ebfb60f167eb7331  usr/include/ccd/ccd.h
-285cd2ab8fd290ce13662d3260880e17  usr/include/ccd/compiler.h
-0b703ab4d4c4bfdc6a161fffb81b0f72  usr/include/ccd/config.h
-46952c27a8cc6517962f56e350656d37  usr/include/ccd/quat.h
-61c422e2bd03bc259570d0d356c137a6  usr/include/ccd/vec3.h
-d66be8bcce0435171ca5b8a4e7dadccb  usr/lib/x86_64-linux-gnu/pkgconfig/ccd.pc
-dbdd636abaf50d81785bbc3d14390157  usr/share/doc/libccd-dev/copyright

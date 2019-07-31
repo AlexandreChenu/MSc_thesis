@@ -1,4 +1,0 @@
-eea32881769af536851d1aa2a44fe53d  usr/local/cuda-10.0/compat/libcuda.so.410.104
-4ca16b7138076186b0c9dfe6563da498  usr/local/cuda-10.0/compat/libnvidia-fatbinaryloader.so.410.104
-ad16a0beb1f4b87258b826afb5e50b8f  usr/local/cuda-10.0/compat/libnvidia-ptxjitcompiler.so.410.104
-cd43e347441dfe868277cbcc3fcaa2dd  usr/share/doc/cuda-compat-10-0/changelog.Debian.gz

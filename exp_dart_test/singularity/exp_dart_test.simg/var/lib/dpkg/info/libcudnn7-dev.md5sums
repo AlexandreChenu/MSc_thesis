@@ -1,5 +1,0 @@
-a34825ff117c166f4620bb625c66d1e8  usr/include/x86_64-linux-gnu/cudnn_v7.h
-c1b29a5620253afa9733f914a8b26c20  usr/lib/x86_64-linux-gnu/libcudnn_static_v7.a
-5d9e243090467d7cce55740f4de905b0  usr/share/doc/libcudnn7-dev/changelog.Debian.gz
-d41d8cd98f00b204e9800998ecf8427e  usr/share/doc/libcudnn7-dev/copyright
-ffeb42119f0e03b5f46af49715c18448  usr/share/lintian/overrides/libcudnn7-dev

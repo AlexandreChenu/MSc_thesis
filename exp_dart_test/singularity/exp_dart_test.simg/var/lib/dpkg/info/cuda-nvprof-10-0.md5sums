@@ -1,7 +1,0 @@
-acf8e15289fd7b7aa9f1ee798e822a6e  usr/lib/pkgconfig/accinj64-10.0.pc
-299fc05c9b3fe38bb6ace136b672b873  usr/lib/pkgconfig/cuinj64-10.0.pc
-ed39efde1e9b7244e2ef53ab9c312e95  usr/local/cuda-10.0/bin/nvprof
-33459500d2432181912507662018a89a  usr/local/cuda-10.0/targets/x86_64-linux/lib/libaccinj64.so.10.0.130
-97f63864189ca00bdcdb6e279ec8d6c0  usr/local/cuda-10.0/targets/x86_64-linux/lib/libcuinj64.so.10.0.130
-34d1ca7affc5f267f7a0cb5b8773af1b  usr/share/doc/cuda-nvprof-10-0/changelog.Debian.gz
-59cb552ac30d30ce823a476cdf13596f  usr/share/doc/cuda-nvprof-10-0/copyright

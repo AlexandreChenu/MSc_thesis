@@ -1,9 +1,0 @@
-4e3b9a3cfe81c4f4dbfbe828dc8b9292  usr/lib/pkgconfig/nvml-10.0.pc
-71aebcf0c3828c8ad364a1e2f126241c  usr/local/cuda-10.0/nvml/example/Makefile
-c1fad4a343e4c66ca013c3e0792e7ef2  usr/local/cuda-10.0/nvml/example/README.txt
-d064741cebd2ab8bd7f282aff39a0632  usr/local/cuda-10.0/nvml/example/example.c
-25df7316dcab4c6d020bb21f972ac051  usr/local/cuda-10.0/nvml/example/supportedVgpus.c
-9376d8179fb3424ab15cbd6aae79f5ee  usr/local/cuda-10.0/targets/x86_64-linux/include/nvml.h
-86ad03fd3cda09e5585327c0dd08d7b2  usr/local/cuda-10.0/targets/x86_64-linux/lib/stubs/libnvidia-ml.so
-34d1ca7affc5f267f7a0cb5b8773af1b  usr/share/doc/cuda-nvml-dev-10-0/changelog.Debian.gz
-59cb552ac30d30ce823a476cdf13596f  usr/share/doc/cuda-nvml-dev-10-0/copyright

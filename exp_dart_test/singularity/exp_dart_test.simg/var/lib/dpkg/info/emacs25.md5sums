@@ -1,7 +1,0 @@
-b9c6e30fe107cf82032f2f02a1aca842  usr/bin/emacs25-x
-48fa82842d4e9bde32245805e244e44a  usr/share/applications/emacs25-term.desktop
-0c07a10967d887432a51d6b572e44d91  usr/share/applications/emacs25.desktop
-85da6f39bea87c24305894e9cb931826  usr/share/doc/emacs25/README.Debian
-15c55ea9153531aedc77cdff182efb00  usr/share/doc/emacs25/copyright
-2d0a2eda091b1904e144e5e3012eadd3  usr/share/emacs/25.2/etc/DOC
-ebcd8a56e6647da9c48510238026c04d  usr/share/lintian/overrides/emacs25

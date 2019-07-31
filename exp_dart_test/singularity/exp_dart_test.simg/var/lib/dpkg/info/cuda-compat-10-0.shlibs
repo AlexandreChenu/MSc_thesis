@@ -1,3 +1,0 @@
-libcuda 1 cuda-compat-10-0
-libnvidia-fatbinaryloader 410.104 cuda-compat-10-0
-libnvidia-ptxjitcompiler 1 cuda-compat-10-0
